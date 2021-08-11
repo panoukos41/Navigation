@@ -1,0 +1,10 @@
+{
+  "solution": {
+    "path": "..\\Navigation.sln",
+    "projects": [
+      "src\\Navigation.Blazor\\Navigation.Blazor.csproj",
+      "src\\Navigation.UAP\\Navigation.UAP.csproj",
+      "src\\Navigation\\Navigation.csproj"
+    ]
+  }
+}

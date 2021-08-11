@@ -1,0 +1,1 @@
+msbuild /t:build,pack /nowarn:MSB4011,VSX1000 /p:NoPackageAnalysis=true /p:ContinuousIntegrationBuild=true /verbosity:minimal
