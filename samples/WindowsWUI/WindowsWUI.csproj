@@ -1,0 +1,34 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net6.0-windows10.0.19041.0</TargetFramework>
+    <TargetPlatformMinVersion>10.0.19041.0</TargetPlatformMinVersion>
+    <MinimumPlatformVersion>$(TargetPlatformMinVersion)</MinimumPlatformVersion>
+    <RootNamespace>WindowsWUI</RootNamespace>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <Platforms>x86;x64;<!--arm64--></Platforms>
+    <RuntimeIdentifiers>win10-x86;win10-x64;<!--win10-arm64--></RuntimeIdentifiers>
+    <UseWinUI>true</UseWinUI>
+    <NoWarn>CS1591;</NoWarn>
+
+    <!-- Ditch packaging project: https://nicksnettravels.builttoroam.com/no-packaging-project/ -->
+    <EnablePreviewMsixTooling>true</EnablePreviewMsixTooling>
+    <WindowsPackageType>MSIX</WindowsPackageType>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="MainWindow.xaml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Base\Base.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Page Update="MainWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,7 @@
+{
+  "profiles": {
+    "WindowsWUI": {
+      "commandName": "AppContainer"
+    }
+  }
+}
