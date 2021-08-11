@@ -5,6 +5,9 @@
     <Configuration Condition="$(Configuration) == ''">Debug</Configuration>
     <NoWarn>IDE0130;</NoWarn>
 
+    <DisableImplicitNamespaceImports>true</DisableImplicitNamespaceImports>
+    <ImplicitUsings>false</ImplicitUsings>
+
     <!-- Set output paths -->
     <ArtifactsDir>$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), 'Directory.Build.props'))\artifacts</ArtifactsDir>
     <Artifacts>$(MSBuildProjectName)\$(Configuration)</Artifacts>

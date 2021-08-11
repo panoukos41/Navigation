@@ -38,7 +38,7 @@ namespace P41.Navigation
         /// <inheritdoc/>
         protected override object? InitializeViewModel(string page)
         {
-            return base.InitializeViewModel(page);
+            return null;
         }
     }
 }
