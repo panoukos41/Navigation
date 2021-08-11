@@ -1,0 +1,46 @@
+<Project>
+  <PropertyGroup>
+    <LangVersion>preview</LangVersion>
+    <Nullable>enable</Nullable>
+    <Configuration Condition="$(Configuration) == ''">Debug</Configuration>
+    <NoWarn>IDE0130;</NoWarn>
+
+    <!-- Set output paths -->
+    <ArtifactsDir>$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), 'Directory.Build.props'))\artifacts</ArtifactsDir>
+    <Artifacts>$(MSBuildProjectName)\$(Configuration)</Artifacts>
+
+    <OutputPath>$(ArtifactsDir)\bin\$(Artifacts)\</OutputPath>
+    <BaseOutputPath>$(ArtifactsDir)\obj\$(Artifacts)\</BaseOutputPath>
+    <BaseIntermediateOutputPath>$(ArtifactsDir)\obj\$(Artifacts)\</BaseIntermediateOutputPath>
+    <DocumentationFile>$(ArtifactsDir)\doc\$(Artifacts)\doc.xml</DocumentationFile>
+    <PackageOutputPath>$(ArtifactsDir)\nuget\</PackageOutputPath>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <Authors>Panos Athanasiou</Authors>
+    <Copyright>Copyright (c) 2021 Panos Athanasiou</Copyright>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/panoukos41/navigation</PackageProjectUrl>
+    <PackageIconUrl></PackageIconUrl>
+    <DefaultPackageDescription>A project for key to view navigation using ReactiveUI while providing ViewModel creation and navigation aware interface.</DefaultPackageDescription>
+    <PackageDescription>$(DefaultPackageDescription)</PackageDescription>
+    <Owners>panoukos41</Owners>
+    <PackageTags>mvvm;reactiveui;dotnet;netstandard;xamarin;android;uwp;wpf;wui;</PackageTags>
+    <PackageReleaseNotes>https://github.com/panoukos41/navigation/releases</PackageReleaseNotes>
+    <RepositoryUrl>https://github.com/panoukos41/navigation</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+
+    <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
+    <!-- Publish the repository URL in the built .nupkg (in the NuSpec <Repository> element) -->
+    <PublishRepositoryUrl>true</PublishRepositoryUrl> 
+    <!-- Embed source files that are not tracked by the source control manager in the PDB -->
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <!-- Include PDB in the built .nupkg -->
+    <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Nerdbank.GitVersioning" Version="3.4.231" PrivateAssets="All" />
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" />
+  </ItemGroup>
+</Project>
