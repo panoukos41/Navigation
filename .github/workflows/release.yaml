@@ -1,0 +1,80 @@
+name: Release
+
+env:
+  DOTNET_NOLOGO: true
+  configuration: Release
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "src/**/*.cs"
+
+jobs:
+  build:
+    runs-on: windows-latest
+    outputs:
+      nbgv: ${{ steps.nbgv.outputs.SemVer2 }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with: { fetch-depth: 0 }
+
+      - name: Setup .NET 6.0
+        uses: actions/setup-dotnet@v1
+        with: { dotnet-version: "6.0.x", include-prerelease: true }
+
+      - name: Setup MSbuild
+        uses: microsoft/setup-msbuild@v1
+
+      - name: Setup NerdBank.GitVersioning
+        uses: dotnet/nbgv@v0.4
+        id: nbgv
+        with: { setAllVars: true }
+
+      - name: Restore
+        run: dotnet restore
+
+      - name: Build & Pack
+        working-directory: src/Navigation
+        run: |
+          msbuild /t:build,pack /nowarn:MSB4011,VSX1000 /p:NoPackageAnalysis=true /verbosity:minimal /p:Configuration=${{ env.configuration }}
+
+      - name: Test
+        working-directory: tests
+        run: |
+          dotnet test Navigation.slnf
+
+      - name: Upload NuGet Artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: nuget
+          path: artifacts/nuget/*.nupkg
+
+  release:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Create Release
+        uses: actions/create-release@latest
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: v${{ needs.build.outputs.nbgv }}
+          release_name: ${{ needs.build.outputs.nbgv }}
+
+  publish:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Download NuGet Packages
+        uses: actions/download-artifact@v2
+        with: { name: nuget }
+
+      - name: Publish to NuGet
+        env:
+          NUGET_AUTH_TOKEN: ${{ secrets.NUGET_API_KEY }}
+          SOURCE_URL: https://api.nuget.org/v3/index.json
+        run: |
+          dotnet nuget push **/*.nupkg --skip-duplicate -s ${{ env.SOURCE_URL }} -k ${{ env.NUGET_AUTH_TOKEN }}
