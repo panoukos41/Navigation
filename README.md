@@ -60,7 +60,7 @@ There are also samples in the [samples](./samples) folder to try.
 
 ## Build
 
-Install [Visual Studio 2022]() and [.NET 6.0]()
+Install [Visual Studio 2022 Preview](https://visualstudio.microsoft.com/vs/preview) and [.NET 6.0](https://dotnet.microsoft.com/download/dotnet/6.0)
 
 Clone the project and open the solution then you just build the whole solution or project.
 
