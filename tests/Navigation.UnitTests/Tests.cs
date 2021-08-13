@@ -1,5 +1,6 @@
 ﻿using FluentAssertions;
 using P41.Navigation;
+using P41.Navigation.Host;
 using P41.Navigation.UnitTests.Util;
 using System.Reactive.Linq;
 using static Hallstatt.TestController;
@@ -30,6 +31,73 @@ Test($"{nameof(NavigationRequest)} should convert from string.", () =>
         .AddQuery("picture", "true");
 
     NavigationRequest.Parse(navRequest).Should().Be(expected);
+});
+
+Test($"{nameof(NavigationRequest)} identical requests should be equal", () =>
+{
+    var requestLeft = new NavigationRequest("home").AddPath("10").AddQuery("lang", "en");
+    var requestRight = new NavigationRequest("home").AddPath("10").AddQuery("lang", "en");
+
+    requestLeft.Equals(requestRight).Should().Be(true);
+});
+
+Test($"{nameof(NavigationRequest)} different requests should not be equal", () =>
+{
+    var requestLeft = new NavigationRequest("home").AddPath("10").AddQuery("lang", "gr");
+    var requestRight = new NavigationRequest("home").AddPath("10").AddQuery("lang", "en");
+
+    requestLeft.Equals(requestRight).Should().Be(false);
+});
+
+Test($"{nameof(NavigationStack)} should convert to json.", () =>
+{
+    var stack = new NavigationStack();
+    stack.Push(new NavigationRequest("home"));
+    stack.Push(new NavigationRequest("details").AddQuery("num", "10"));
+
+    var expected = @"[""details?num=10"",""home""]";
+    var actual = stack.ToJson();
+
+    actual.Should().Be(expected);
+});
+
+Test($"{nameof(NavigationStack)} should convert from json.", () =>
+{
+    var json = @"[""details?num=10"",""home""]";
+
+    var expected = new NavigationStack(2);
+    expected.Push(new NavigationRequest("home"));
+    expected.Push(new NavigationRequest("details").AddQuery("num", "10"));
+
+    var actual = NavigationStack.Parse(json);
+
+    actual.Equals(expected).Should().Be(true);
+});
+
+Test($"{nameof(NavigationStack)} identical stacks should be equal", () =>
+{
+    var stackLeft = new NavigationStack();
+    stackLeft.Push(new NavigationRequest("home"));
+    stackLeft.Push(new NavigationRequest("details").AddQuery("num", "10"));
+
+    var stackRight = new NavigationStack();
+    stackRight.Push(new NavigationRequest("home"));
+    stackRight.Push(new NavigationRequest("details").AddQuery("num", "10"));
+
+    stackLeft.Equals(stackRight).Should().Be(true);
+});
+
+Test($"{nameof(NavigationStack)} different stacks should not be equal", () =>
+{
+    var stackLeft = new NavigationStack();
+    stackLeft.Push(new NavigationRequest("home"));
+    stackLeft.Push(new NavigationRequest("details").AddQuery("num", "10"));
+
+    var stackRight = new NavigationStack();
+    stackRight.Push(new NavigationRequest("home"));
+    stackRight.Push(new NavigationRequest("details").AddQuery("num", "1"));
+
+    stackLeft.Equals(stackRight).Should().Be(false);
 });
 
 Test($"{nameof(INavigationHost)} scenario, should navigate to/from and count events.", async () =>
