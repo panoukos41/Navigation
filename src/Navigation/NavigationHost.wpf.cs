@@ -34,7 +34,7 @@ namespace P41.Navigation
         {
             var host = Host;
 
-            _ = host.Navigate(Views[request.Page].Invoke());
+            _ = host.Navigate(InitializeView(request.Page));
 
             return GetHostContent(host);
         }

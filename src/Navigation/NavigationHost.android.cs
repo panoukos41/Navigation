@@ -8,19 +8,10 @@ namespace P41.Navigation
 {
     public class NavigationHost : NavigationHostBaseWithFactories<FragmentManager, Fragment, NavigationHost>
     {
-        private int fragmentContainerId;
-        private const string BACKSTACK_TAG = "fragment_number_";
-
         /// <summary>
         /// Gets or sets the FragmentContainerId that should be used for the navigation.
         /// </summary>
-        public virtual int FragmentContainerId
-        {
-            get => fragmentContainerId != 0
-                ? fragmentContainerId
-                : throw new NullReferenceException($"{nameof(FragmentContainerId)} was not set! Please set it before using the service.");
-            set => fragmentContainerId = value;
-        }
+        public virtual int? FragmentContainerId { get; set; }
 
         /// <summary>
         /// Initializes a new instance of <see cref="NavigationHost"/>.
@@ -66,14 +57,27 @@ namespace P41.Navigation
         {
             var manager = Host;
 
-            var fragment = Views[request.Page].Invoke();
-            var index = manager.BackStackEntryCount - 1;
-            var key = $"{index}: {request}";
+            var fragment = InitializeView(request.Page);
 
-            manager.BeginTransaction()
+            if (fragment is IViewFor view)
+            {
+                // We initialize the ViewModel now since most of the times
+                // the platform is much faster at creating views than us
+                // injecting the ViewModel
+                view.ViewModel = InitializeViewModel(request.Page);
+            }
+
+            var key = manager.BackStackEntryCount.ToString();
+            var containerId = FragmentContainerId ??
+                throw new NullReferenceException($"{nameof(FragmentContainerId)} was not set! Please set it before using the service.");
+
+            manager
+                .BeginTransaction()
+                .Replace(containerId, fragment, key)
                 .AddToBackStack(key)
-                .Replace(FragmentContainerId, fragment, key)
                 .Commit();
+
+            manager.ExecutePendingTransactions();
 
             return GetHostContent(manager);
         }
@@ -83,16 +87,16 @@ namespace P41.Navigation
         {
             var manager = Host;
 
-            manager.PopBackStack();
+            manager.PopBackStackImmediate();
 
             return GetHostContent(manager);
         }
 
         private static IObservable<IViewFor> GetHostContent(FragmentManager manager)
         {
-            var last = manager.BackStackEntryCount - 1;
+            var last = (manager.BackStackEntryCount - 1).ToString();
 
-            return manager.Fragments[last] is IViewFor view
+            return manager.FindFragmentByTag(last) is IViewFor view
                 ? Observable.Return(view)
                 : throw new ArgumentException($"View must implement {nameof(IViewFor)}");
         }
