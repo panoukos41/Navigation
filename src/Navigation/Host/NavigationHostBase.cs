@@ -13,7 +13,8 @@ namespace P41.Navigation.Host
     /// </summary>
     public abstract class NavigationHostBase : INavigationHost
     {
-        private readonly Subject<INavigationHost> _hostSubject = new();
+        private NavigationStack _stack = null!;
+        private readonly Subject<INavigationHost> _whenNavigated = new();
 
         /// <inheritdoc/>
         public int Count => Stack.Count;
@@ -34,19 +35,27 @@ namespace P41.Navigation.Host
         public Interaction<Unit, bool> ShouldPopRoot { get; } = new();
 
         /// <inheritdoc/>
-        public IObservable<INavigationHost> WhenNavigated => _hostSubject.AsObservable();
+        public IObservable<INavigationHost> WhenNavigated => _whenNavigated.AsObservable();
 
         /// <summary>
         /// The navigation stack.
         /// </summary>
-        protected NavigationStack Stack { get; set; } = new();
+        protected NavigationStack Stack
+        {
+            get => _stack;
+            set
+            {
+                _stack = value;
+                Stack.Change.Subscribe(_ => _whenNavigated.OnNext(this));
+            }
+        }
 
         /// <summary>
         /// Initialization of navigation logic.
         /// </summary>
         protected NavigationHostBase()
         {
-            Stack.Change.Subscribe(_ => _hostSubject.OnNext(this));
+            Stack = new();
             Push.RegisterHandler(async (input, handled) =>
             {
                 if (CurrentRequest == input) return Unit.Default;
@@ -58,11 +67,7 @@ namespace P41.Navigation.Host
                 CurrentView = await PlatformNavigate(input);
                 Stack.Push(input);
 
-                var nextVm = InitializeViewModel(input.Page);
-                if (nextVm is { })
-                {
-                    CurrentView.ViewModel = nextVm;
-                }
+                SetViewModel();
 
                 NavigatedToViewModel();
 
@@ -80,10 +85,7 @@ namespace P41.Navigation.Host
                     CurrentView = await PlatformGoBack();
                     var popped = Stack.Pop();
 
-                    if (CurrentView.ViewModel is null)
-                    {
-                        CurrentView.ViewModel = InitializeViewModel(CurrentRequest!.Page);
-                    }
+                    SetViewModel();
 
                     NavigatedToViewModel();
 
@@ -110,6 +112,16 @@ namespace P41.Navigation.Host
             if (CurrentView?.ViewModel is INavigationAware previusVm)
             {
                 previusVm.NavigatingFrom().Subscribe();
+            }
+        }
+
+        private void SetViewModel()
+        {
+            // Only set it if not set since some times
+            // it can be set on the platfrom navigate like android.
+            if (CurrentView is { ViewModel: null })
+            {
+                CurrentView.ViewModel = InitializeViewModel(CurrentRequest!.Page);
             }
         }
 

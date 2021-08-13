@@ -29,7 +29,7 @@ namespace P41.Navigation
         NavigationRequest? CurrentRequest { get; }
 
         /// <summary>
-        /// An observable that signals a navigation happened
+        /// An observable that signals a navigation (push or pop) happened
         /// and passes the itself for further processing.
         /// </summary>
         IObservable<INavigationHost> WhenNavigated { get; }
@@ -177,7 +177,7 @@ namespace P41.Navigation
                 ? host.Count > 0
                 : host.Count > 1;
         }
-        
+
         /// <summary>
         /// Pop the current page/parameters pair from the stack and
         /// return an IDisposable that when disposed you usubscribe from the event.

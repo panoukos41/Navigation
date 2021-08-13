@@ -17,12 +17,12 @@ namespace P41.Navigation.Host
         /// <summary>
         /// A page key,View factory function to get a View for the host.
         /// </summary>
-        public Dictionary<string, Func<TView>> Views { get; } = new();
+        private Dictionary<string, Func<TView>> Views { get; } = new();
 
         /// <summary>
         /// A page key, ViewModel factory function to get a ViewModel for the key.
         /// </summary>
-        public Dictionary<string, Func<object?>> ViewModels { get; } = new();
+        private Dictionary<string, Func<object?>> ViewModels { get; } = new();
 
         /// <inheritdoc/>
         protected override TView InitializeView(string page)
