@@ -18,17 +18,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="MainWindow.xaml" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\Base\Base.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Page Update="MainWindow.xaml">
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
   </ItemGroup>
 
 </Project>

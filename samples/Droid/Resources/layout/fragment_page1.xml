@@ -1,0 +1,73 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <TextView
+        android:id="@+id/PlaceHolderCount"
+        android:text="Count:"
+        android:textSize="24sp"
+        app:layout_constraintHorizontal_chainStyle="packed"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toLeftOf="@id/Count"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+
+    <TextView
+        android:id="@+id/Count"
+        android:textSize="24sp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintLeft_toRightOf="@id/PlaceHolderCount"
+        app:layout_constraintRight_toRightOf="parent"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+
+    <androidx.constraintlayout.widget.Barrier
+        android:id="@+id/CountBarrier"
+        app:barrierDirection="bottom"
+        app:constraint_referenced_ids="PlaceHolderCount,Count"
+        android:layout_width="wrap_content"
+        android:layout_height="5dp"/>
+
+    <TextView
+        android:id="@+id/PlaceHoderIncrease"
+        android:text="Increase By:"
+        android:textSize="24sp"
+        app:layout_constraintHorizontal_chainStyle="packed"
+        app:layout_constraintTop_toBottomOf="@id/CountBarrier"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toLeftOf="@id/IncreaseBy"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+
+    <EditText
+        android:id="@+id/IncreaseBy"
+        android:textSize="24sp"
+        app:layout_constraintTop_toBottomOf="@id/CountBarrier"
+        app:layout_constraintBottom_toBottomOf="@id/PlaceHoderIncrease"
+        app:layout_constraintLeft_toRightOf="@id/PlaceHoderIncrease"
+        app:layout_constraintRight_toRightOf="parent"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+
+    <androidx.constraintlayout.widget.Barrier
+        android:id="@+id/IncreaseBarrier"
+        app:barrierDirection="bottom"
+        app:constraint_referenced_ids="PlaceHoderIncrease,IncreaseBy"
+        android:layout_width="wrap_content"
+        android:layout_height="5dp"/>
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/Increase"
+        android:text="Increase"
+        app:layout_constraintTop_toBottomOf="@id/IncreaseBarrier"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

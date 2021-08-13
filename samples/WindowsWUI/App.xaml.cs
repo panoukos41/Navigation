@@ -56,6 +56,6 @@ namespace WindowsWUI
             main.Activate();
         }
 
-        private Shell? shell;
+        private readonly Shell? shell;
     }
 }

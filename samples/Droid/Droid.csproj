@@ -1,0 +1,19 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0-android</TargetFramework>
+    <OutputType>Exe</OutputType>
+    <_KeepLaunchProfiles>true</_KeepLaunchProfiles>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="ReactiveUI.AndroidX" Version="14.3.1" />
+    <PackageReference Include="Xamarin.Essentials" Version="1.7.0" />
+    <PackageReference Include="Xamarin.Google.Android.Material" Version="1.4.0.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Base\Base.csproj" />
+  </ItemGroup>
+
+</Project>

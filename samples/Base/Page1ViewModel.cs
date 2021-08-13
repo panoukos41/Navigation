@@ -29,7 +29,7 @@ namespace Base
         {
             if (int.TryParse(parameters.GetPathOrDefault(0, "10"), out var inc))
             {
-                IncreaseBy *= inc;
+                IncreaseBy = inc;
             }
             return Observable.Return(Unit.Default);
         }
