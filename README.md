@@ -8,36 +8,51 @@ A project for key to view navigation using [ReactiveUI](https://github.com/react
 
 ## Platforms
 
-| Platform          | TFM                      | NuGet |
-|-------------------|--------------------------|-------|
-| .NET Standard 2.0 | netstandard2.0           |       |
-| .NET 6.0 Android  | net6.0-android           |       |
-| .NET 5.0 WPF      | net5.0-windows7.0        |       |
-| .NET 5.0 WinUI    | net5.0-windows10.0.19041 |       |
-| UWP 16299         | uap10.0.16299            |       |
+| Platform          | TFM                      |
+|-------------------|--------------------------|
+| .NET Standard 2.0 | netstandard2.0           |
+| .NET 6.0 Android  | net6.0-android           |
+| .NET 5.0 WPF      | net5.0-windows7.0        |
+| .NET 5.0 WinUI    | net5.0-windows10.0.19041 |
+| UWP 16299         | uap10.0.16299            |
 
 ## Installation
 
 > Replace `X` with the version you want!
 
-| Method            | Command                  |
-|-------------------|--------------------------|
-| Package Manager   | `Install-Package P41.Navigation -Version X`|
-| Package Reference | `<PackageReference Include="P41.Navigation" Version="X" />`|
-| .NET CLI          | `dotnet add package P41.Navigation --version X`|
+### .NET CLI
+```csharp
+dotnet add package P41.Navigation --version X
+```
+
+### Package Reference
+```csharp
+<PackageReference Include="P41.Navigation" Version="X" />
+```
+
+### Package Manager
+```csharp
+Install-Package P41.Navigation -Version X
+```
 
 ## Getting Started
 
 You get started by configuring the `NavigationHost` for a platform:
 
+### UWP
 ```csharp
-// UWP platform
 new NavigationHost()
     .AddPair("page1", static () => typeof(Page1), static () => new Page1ViewModel())
     .AddPair("page2", static () => typeof(Page2), static () => new Page2ViewModel())
     .AddPair("page3", static () => typeof(Page3), static () => new Page3ViewModel());
 ```
 
+### Android
+```csharp
+
+```
+
+### .NET Standard 2.0
 Then from your shared code *(eg: netstandard)* you call navigation methods:
 
 ```csharp
