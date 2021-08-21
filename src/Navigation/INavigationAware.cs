@@ -12,9 +12,14 @@ namespace P41.Navigation
         /// Method executed when a ViewModel is navigated to.
         /// This is executed for forward and backward navigation.
         /// </summary>
-        /// <param name="parameters">The parameters passed to the navigation host for this object.</param>
+        /// <param name="request">The request passed to the navigation host for this object.</param>
+        /// <param name="host">The host on which the navigation happens.</param>
         /// <returns></returns>
-        IObservable<Unit> NavigatedTo(NavigationRequest parameters);
+        /// <remarks>
+        /// The <paramref name="request"/> is the sames as the <paramref name="host"/>
+        /// <see cref="INavigationHost.CurrentRequest"/> parameter.
+        /// </remarks>
+        IObservable<Unit> NavigatedTo(NavigationRequest request, INavigationHost host);
 
         /// <summary>
         /// Method executed when a Viewmodel is being navigating away.

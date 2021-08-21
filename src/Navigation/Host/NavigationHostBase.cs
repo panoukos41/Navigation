@@ -103,7 +103,7 @@ namespace P41.Navigation.Host
             // Going to the View/ViewModel
             if (CurrentView?.ViewModel is INavigationAware nextVm)
             {
-                nextVm.NavigatedTo(CurrentRequest!).Subscribe();
+                nextVm.NavigatedTo(CurrentRequest!, this).Subscribe();
             }
         }
         private void NavigatingFromViewModel()
