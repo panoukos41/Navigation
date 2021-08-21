@@ -49,7 +49,10 @@ new NavigationHost()
 
 ### Android
 ```csharp
-
+new NavigationHost(SupportFragmentManager, R.Id.MainContainer)
+    .AddPair("page1", static () => new Page1(), static () => Services.Resolve<Page1ViewModel>())
+    .AddPair("page2", static () => new Page2(), static () => Services.Resolve<Page2ViewModel>())
+    .AddPair("page3", static () => new Page3(), static () => Services.Resolve<Page3ViewModel>());
 ```
 
 ### .NET Standard 2.0
@@ -81,4 +84,4 @@ Clone the project and open the solution then you just build the whole solution o
 
 ## Contribute
 
-Contributions are welcome and appreceated, before you create a pull request please open a [GitHub Issue](https://github.com/panoukos41/navigation/issues/new) to discuss what needs changing and or fixing if the issue doesn't exist!
+Contributions are welcome and appreciated, before you create a pull request please open a [GitHub Issue](https://github.com/panoukos41/navigation/issues/new) to discuss what needs changing and or fixing if the issue doesn't exist!
