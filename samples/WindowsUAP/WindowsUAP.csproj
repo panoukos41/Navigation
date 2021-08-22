@@ -178,7 +178,10 @@
       <Version>6.2.12</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.UI.Xaml">
-      <Version>2.6.1</Version>
+      <Version>2.6.2</Version>
+    </PackageReference>
+    <PackageReference Include="ReactiveUI">
+      <Version>16.1.1</Version>
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
