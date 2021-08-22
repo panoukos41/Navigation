@@ -13,7 +13,7 @@ namespace P41.Navigation.UnitTests.Util
 
         public int NavigatingFromCount { get; private set; }
 
-        public IObservable<Unit> NavigatedTo(NavigationRequest parameters)
+        public IObservable<Unit> NavigatedTo(NavigationRequest request, INavigationHost host)
         {
             NavigatedToCount++;
             return Observable.Return(Unit.Default);
