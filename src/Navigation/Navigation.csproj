@@ -32,7 +32,7 @@
     <None Include="**\*.wui.cs" />
     <Compile Remove="**\*.wui.cs" />
 
-    <PackageReference Include="ReactiveUI" Version="14.1.1" />
+    <PackageReference Include="ReactiveUI" Version="16.1.1" />
   </ItemGroup>
 
   <!-- netstandard2.0 -->
@@ -52,14 +52,13 @@
   <ItemGroup Condition="$(TargetFramework) == 'net5.0-windows7.0'">
     <Compile Include="**\*.wpf.cs" />
 
-    <PackageReference Include="ReactiveUI.WPF" Version="14.1.1" />
+    <PackageReference Include="ReactiveUI.WPF" Version="16.1.1" />
   </ItemGroup>
   
   <!-- Windows UAP -->
   <ItemGroup Condition="$(TargetFramework.StartsWith('uap'))">
     <Compile Include="**\*.uap.cs" />
 
-    <!--<PackageReference Include="Microsoft.NETCore.UniversalWindowsPlatform" Version="6.2.12" />-->
     <PackageReference Include="System.Memory" Version="4.5.4" />
     <PackageReference Include="Microsoft.Bcl.HashCode" Version="1.1.1" />
   </ItemGroup>
@@ -68,9 +67,9 @@
   <ItemGroup Condition="$(TargetFramework.StartsWith('net5.0-windows10.0'))">
     <Compile Include="**\*.wui.cs" />
 
-    <PackageReference Include="Microsoft.ProjectReunion" Version="0.8.1" />
-    <PackageReference Include="Microsoft.ProjectReunion.Foundation" Version="0.8.1" />
-    <PackageReference Include="Microsoft.ProjectReunion.WinUI" Version="0.8.1" />
+    <PackageReference Include="Microsoft.ProjectReunion" Version="0.8.2" />
+    <PackageReference Include="Microsoft.ProjectReunion.Foundation" Version="0.8.2" />
+    <PackageReference Include="Microsoft.ProjectReunion.WinUI" Version="0.8.2" />
   </ItemGroup>
 
 </Project>
