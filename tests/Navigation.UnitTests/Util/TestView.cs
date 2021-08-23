@@ -1,24 +1,23 @@
 ﻿using ReactiveUI;
 using System.Diagnostics;
 
-namespace P41.Navigation.UnitTests.Util
+namespace P41.Navigation.UnitTests.Util;
+
+[DebuggerDisplay("Page: {page}")]
+class TestView : IViewFor<TestViewModel>
 {
-    [DebuggerDisplay("Page: {page}")]
-    class TestView : IViewFor<TestViewModel>
+    private readonly string page;
+
+    public TestView(string page)
     {
-        private readonly string page;
+        this.page = page;
+    }
 
-        public TestView(string page)
-        {
-            this.page = page;
-        }
+    public TestViewModel? ViewModel { get; set; }
 
-        public TestViewModel? ViewModel { get; set; }
-
-        object? IViewFor.ViewModel
-        {
-            get => ViewModel;
-            set => ViewModel = (TestViewModel?)value;
-        }
+    object? IViewFor.ViewModel
+    {
+        get => ViewModel;
+        set => ViewModel = (TestViewModel?)value;
     }
 }
