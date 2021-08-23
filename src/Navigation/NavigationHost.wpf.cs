@@ -4,56 +4,55 @@ using System;
 using System.Reactive.Linq;
 using System.Windows.Controls;
 
-namespace P41.Navigation
+namespace P41.Navigation;
+
+/// <summary>
+/// Implementation of <see cref="INavigationHost"/> that can be configured with factory
+/// methods for Views and ViewModels.
+/// </summary>
+public class NavigationHost : NavigationHostBaseWithFactories<Frame, Type, NavigationHost>
 {
     /// <summary>
-    /// Implementation of <see cref="INavigationHost"/> that can be configured with factory
-    /// methods for Views and ViewModels.
+    /// Initialize a new <see cref="NavigationHost"/>.
     /// </summary>
-    public class NavigationHost : NavigationHostBaseWithFactories<Frame, Type, NavigationHost>
+    /// <remarks>Host will be null.</remarks>
+    public NavigationHost()
     {
-        /// <summary>
-        /// Initialize a new <see cref="NavigationHost"/>.
-        /// </summary>
-        /// <remarks>Host will be null.</remarks>
-        public NavigationHost()
-        {
-        }
+    }
 
-        /// <summary>
-        /// Initialize a new <see cref="NavigationHost"/> with the provided frame.
-        /// </summary>
-        /// <param name="host">The frame to use for navigation.</param>
-        public NavigationHost(Frame host)
-        {
-            Host = host;
-        }
+    /// <summary>
+    /// Initialize a new <see cref="NavigationHost"/> with the provided frame.
+    /// </summary>
+    /// <param name="host">The frame to use for navigation.</param>
+    public NavigationHost(Frame host)
+    {
+        Host = host;
+    }
 
-        /// <inheritdoc/>
-        protected override IObservable<IViewFor> PlatformNavigate(NavigationRequest request)
-        {
-            var host = Host;
+    /// <inheritdoc/>
+    protected override IObservable<IViewFor> PlatformNavigate()
+    {
+        var host = Host;
 
-            _ = host.Navigate(InitializeView(request.Page));
+        _ = host.Navigate(InitializeView());
 
-            return GetHostContent(host);
-        }
+        return GetHostContent(host);
+    }
 
-        /// <inheritdoc/>
-        protected override IObservable<IViewFor?> PlatformGoBack()
-        {
-            var host = Host;
+    /// <inheritdoc/>
+    protected override IObservable<IViewFor?> PlatformGoBack()
+    {
+        var host = Host;
 
-            host.GoBack();
+        host.GoBack();
 
-            return GetHostContent(host);
-        }
+        return GetHostContent(host);
+    }
 
-        private static IObservable<IViewFor> GetHostContent(Frame host)
-        {
-            return host.Content is IViewFor view
-                ? Observable.Return(view)
-                : throw new ArgumentException($"View must implement {nameof(IViewFor)}");
-        }
+    private static IObservable<IViewFor> GetHostContent(Frame host)
+    {
+        return host.Content is IViewFor view
+            ? Observable.Return(view)
+            : throw new ArgumentException($"View must implement {nameof(IViewFor)}");
     }
 }
