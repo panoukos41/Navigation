@@ -33,7 +33,8 @@
     <Compile Remove="**\*.wui.cs" />
 
     <PackageReference Include="Flurl" Version="3.0.2" />
-    <PackageReference Include="ReactiveUI" Version="16.1.1" />
+    <!--<PackageReference Include="ReactiveUI" Version="16.2.6" />-->
+    <PackageReference Include="ReactiveUI" Version="15.1.1" />
   </ItemGroup>
 
   <!-- netstandard2.0 -->
@@ -53,7 +54,8 @@
   <ItemGroup Condition="$(TargetFramework) == 'net5.0-windows7.0'">
     <Compile Include="**\*.wpf.cs" />
 
-    <PackageReference Include="ReactiveUI.WPF" Version="16.1.1" />
+    <!--<PackageReference Include="ReactiveUI.WPF" Version="16.1.1" />-->
+    <!--<PackageReference Include="ReactiveUI.WPF" Version="15.1.1" />-->
   </ItemGroup>
   
   <!-- Windows UAP -->
