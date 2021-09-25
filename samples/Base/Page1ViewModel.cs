@@ -1,7 +1,9 @@
-﻿using P41.Navigation;
+﻿using Flurl;
+using P41.Navigation;
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
 using System;
+using System.Linq;
 using System.Reactive;
 using System.Reactive.Linq;
 
@@ -25,12 +27,11 @@ namespace Base
             });
         }
 
-        public IObservable<Unit> NavigatedTo(NavigationRequest request, INavigationHost host)
+        public IObservable<Unit> NavigatedTo(Url request, INavigationHost host)
         {
-            if (int.TryParse(request.GetPathOrDefault(0, "10"), out var inc))
-            {
-                IncreaseBy = inc;
-            }
+            IncreaseBy = int.TryParse(request.PathSegments.LastOrDefault(), out var inc)
+                ? inc : 10;
+
             return Observable.Return(Unit.Default);
         }
 

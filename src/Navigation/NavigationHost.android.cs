@@ -4,101 +4,100 @@ using ReactiveUI;
 using System;
 using System.Reactive.Linq;
 
-namespace P41.Navigation
+namespace P41.Navigation;
+
+public class NavigationHost : NavigationHostBase<FragmentManager, Fragment, NavigationHost>
 {
-    public class NavigationHost : NavigationHostBaseWithFactories<FragmentManager, Fragment, NavigationHost>
+    /// <summary>
+    /// Gets or sets the FragmentContainerId that should be used for the navigation.
+    /// </summary>
+    public virtual int? FragmentContainerId { get; set; }
+
+    /// <summary>
+    /// Initializes a new instance of <see cref="NavigationHost"/>.
+    /// </summary>
+    public NavigationHost()
     {
-        /// <summary>
-        /// Gets or sets the FragmentContainerId that should be used for the navigation.
-        /// </summary>
-        public virtual int? FragmentContainerId { get; set; }
+    }
 
-        /// <summary>
-        /// Initializes a new instance of <see cref="NavigationHost"/>.
-        /// </summary>
-        public NavigationHost()
+    /// <summary>
+    /// Initializes a new instance of <see cref="NavigationHost"/> with
+    /// values for the containerId and the fragmentmanager.
+    /// </summary>
+    /// <param name="manager"></param>
+    /// <param name="fragmentContainerId"></param>
+    public NavigationHost(FragmentManager manager, int fragmentContainerId)
+    {
+        Host = manager;
+        FragmentContainerId = fragmentContainerId;
+    }
+
+    /// <summary>
+    /// </summary>
+    /// <param name="fragmentManager"></param>
+    /// <returns></returns>
+    public virtual NavigationHost SetFragmentManager(FragmentManager fragmentManager)
+    {
+        Host = fragmentManager;
+        return this;
+    }
+
+    /// <summary>
+    /// </summary>
+    /// <param name="fragmentContainerId"></param>
+    /// <returns></returns>
+    public virtual NavigationHost SetFragmentContainerId(int fragmentContainerId)
+    {
+        FragmentContainerId = fragmentContainerId;
+        return this;
+    }
+
+    /// <inheritdoc/>
+    protected override IObservable<IViewFor> PlatformNavigate()
+    {
+        var manager = Host;
+
+        var fragment = InitializeView();
+
+        if (fragment is IViewFor view)
         {
+            // We initialize the ViewModel now since most of the times
+            // the platform is much faster at creating views than us
+            // injecting the ViewModel
+            view.ViewModel = InitializeViewModel();
         }
 
-        /// <summary>
-        /// Initializes a new instance of <see cref="NavigationHost"/> with
-        /// values for the containerId and the fragmentmanager.
-        /// </summary>
-        /// <param name="manager"></param>
-        /// <param name="fragmentContainerId"></param>
-        public NavigationHost(FragmentManager manager, int fragmentContainerId)
-        {
-            Host = manager;
-            FragmentContainerId = fragmentContainerId;
-        }
+        var key = manager.BackStackEntryCount.ToString();
+        var containerId = FragmentContainerId ??
+            throw new NullReferenceException($"{nameof(FragmentContainerId)} was not set! Please set it before using the service.");
 
-        /// <summary>
-        /// </summary>
-        /// <param name="fragmentManager"></param>
-        /// <returns></returns>
-        public virtual NavigationHost SetFragmentManager(FragmentManager fragmentManager)
-        {
-            Host = fragmentManager;
-            return this;
-        }
+        manager
+            .BeginTransaction()
+            .Replace(containerId, fragment, key)
+            .AddToBackStack(key)
+            .Commit();
 
-        /// <summary>
-        /// </summary>
-        /// <param name="fragmentContainerId"></param>
-        /// <returns></returns>
-        public virtual NavigationHost SetFragmentContainerId(int fragmentContainerId)
-        {
-            FragmentContainerId = fragmentContainerId;
-            return this;
-        }
+        manager.ExecutePendingTransactions();
 
-        /// <inheritdoc/>
-        protected override IObservable<IViewFor> PlatformNavigate(NavigationRequest request)
-        {
-            var manager = Host;
+        return GetHostContent(manager);
+    }
 
-            var fragment = InitializeView(request.Page);
+    /// <inheritdoc/>
+    protected override IObservable<IViewFor?> PlatformGoBack()
+    {
+        var manager = Host;
 
-            if (fragment is IViewFor view)
-            {
-                // We initialize the ViewModel now since most of the times
-                // the platform is much faster at creating views than us
-                // injecting the ViewModel
-                view.ViewModel = InitializeViewModel(request.Page);
-            }
+        manager.PopBackStackImmediate();
 
-            var key = manager.BackStackEntryCount.ToString();
-            var containerId = FragmentContainerId ??
-                throw new NullReferenceException($"{nameof(FragmentContainerId)} was not set! Please set it before using the service.");
+        return GetHostContent(manager);
+    }
 
-            manager
-                .BeginTransaction()
-                .Replace(containerId, fragment, key)
-                .AddToBackStack(key)
-                .Commit();
+    private static IObservable<IViewFor> GetHostContent(FragmentManager manager)
+    {
+        var last = (manager.BackStackEntryCount - 1).ToString();
 
-            manager.ExecutePendingTransactions();
-
-            return GetHostContent(manager);
-        }
-
-        /// <inheritdoc/>
-        protected override IObservable<IViewFor?> PlatformGoBack()
-        {
-            var manager = Host;
-
-            manager.PopBackStackImmediate();
-
-            return GetHostContent(manager);
-        }
-
-        private static IObservable<IViewFor> GetHostContent(FragmentManager manager)
-        {
-            var last = (manager.BackStackEntryCount - 1).ToString();
-
-            return manager.FindFragmentByTag(last) is IViewFor view
-                ? Observable.Return(view)
-                : throw new ArgumentException($"View must implement {nameof(IViewFor)}");
-        }
+        return manager.FindFragmentByTag(last) is IViewFor view
+            ? Observable.Return(view)
+            : throw new ArgumentException($"View must implement {nameof(IViewFor)}");
     }
 }

@@ -2,54 +2,64 @@
 using ReactiveUI;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reactive.Linq;
 
-namespace P41.Navigation.UnitTests.Util
+namespace P41.Navigation.UnitTests.Util;
+
+class TestHost : NavigationHostBase
 {
-    class TestHost : NavigationHostBase
+    public Stack<NavigationRoute> History { get; } = new();
+
+    public Dictionary<NavigationRoute, IViewFor> Views { get; }
+
+    public Dictionary<NavigationRoute, TestViewModel> ViewModels { get; }
+
+    public TestHost(Dictionary<NavigationRoute, IViewFor> views, Dictionary<NavigationRoute, TestViewModel> viewModels)
     {
-        public Stack<string> History { get; } = new();
+        Views = views;
+        ViewModels = viewModels;
+    }
 
-        public Dictionary<string, IViewFor> Views { get; } = new();
+    protected override IObservable<IViewFor> PlatformNavigate()
+    {
+        var route = Views.Keys.First(r => r.Match(CurrentRequest!));
+        var view = Views.GetValueOrDefault(route);
 
-        public Dictionary<string, TestViewModel> ViewModels { get; } = new();
-
-        protected override IObservable<IViewFor> PlatformNavigate(NavigationRequest request)
+        if (view is null)
         {
-            var page = request.Page;
-            var view = Views.GetValueOrDefault(page);
+            view = new TestView(route);
+            Views.Add(route, view);
+        }
+        SetViewModel(view);
 
-            if (view is null)
-            {
-                view = new TestView(page);
-                Views.Add(page, view);
-            }
+        History.Push(route);
 
-            History.Push(page);
+        return Observable.Return(view);
+    }
 
-            return Observable.Return(view);
+    protected override IObservable<IViewFor?> PlatformGoBack()
+    {
+        History.Pop();
+
+        var page = History.Peek();
+        var view = Views[page];
+        SetViewModel(view);
+
+        return Observable.Return(view);
+    }
+
+    protected override object? InitializeViewModel()
+    {
+        var route = ViewModels.Keys.First(r => r.Match(CurrentRequest!));
+        var vm = ViewModels.GetValueOrDefault(route);
+
+        if (vm is null)
+        {
+            vm = new TestViewModel();
+            ViewModels.Add(route, vm);
         }
 
-        protected override IObservable<IViewFor?> PlatformGoBack()
-        {
-            History.Pop();
-
-            var page = History.Peek();
-
-            return Observable.Return(Views[page]);
-        }
-
-        protected override object? InitializeViewModel(string page)
-        {
-            var vm = ViewModels.GetValueOrDefault(page);
-
-            if (vm is null)
-            {
-                vm = new TestViewModel();
-                ViewModels.Add(page, vm);
-            }
-
-            return vm;
-        }
+        return vm;
     }
 }

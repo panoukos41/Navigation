@@ -1,6 +1,6 @@
 # Navigation
 
-[![Release](https://github.com/panoukos41/navigation/actions/workflows/release.yaml/badge.svg)](https://github.com/panoukos41/couchdb-identity/actions/workflows/release.yaml)
+[![Release](https://github.com/panoukos41/navigation/actions/workflows/release.yaml/badge.svg)](https://github.com/panoukos41/navigation/actions/workflows/release.yaml)
 [![NuGet](https://buildstats.info/nuget/P41.Navigation?includePreReleases=true)](https://www.nuget.org/packages/P41.Navigation)
 [![MIT License](https://img.shields.io/apm/l/atomic-design-ui.svg?)](https://github.com/panoukos41/navigation/blob/main/LICENSE.md)
 

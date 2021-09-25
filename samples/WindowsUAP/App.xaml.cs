@@ -1,4 +1,5 @@
 ﻿using Base;
+using Flurl;
 using Microsoft.Extensions.DependencyInjection;
 using P41.Navigation;
 using System;
@@ -43,9 +44,9 @@ namespace WindowsWUI
                 {
                     services.AddSingleton(sp =>
                         new NavigationHost()
-                        .AddPair("page1", static () => typeof(Page1), static () => Services.Resolve<Page1ViewModel>())
-                        .AddPair("page2", static () => typeof(Page2), static () => Services.Resolve<Page2ViewModel>())
-                        .AddPair("page3", static () => typeof(Page3), static () => Services.Resolve<Page3ViewModel>()));
+                        .Map("page1", static () => Services.Resolve<Page1ViewModel>(), static () => typeof(Page1))
+                        .Map("page2", static () => Services.Resolve<Page2ViewModel>(), static () => typeof(Page2))
+                        .Map("page3", static () => Services.Resolve<Page3ViewModel>(), static () => typeof(Page3)));
 
                     services.AddSingleton<INavigationHost>(sp => sp.GetRequiredService<NavigationHost>());
                 });
@@ -90,7 +91,7 @@ namespace WindowsWUI
                 }
                 // Ensure the current window is active
                 Window.Current.Activate();
-                Services.Resolve<INavigationHost>().Navigate(new NavigationRequest("page1").AddPath("100"));
+                Services.Resolve<INavigationHost>().Navigate("page1/100");
             }
         }
 
