@@ -1,32 +1,39 @@
-﻿using Flurl;
-using P41.Navigation.Host;
+﻿using P41.Navigation.Host;
 using ReactiveUI;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reactive.Linq;
 
 namespace P41.Navigation.UnitTests.Util;
 
 class TestHost : NavigationHostBase
 {
-    public Stack<string> History { get; } = new();
+    public Stack<NavigationRoute> History { get; } = new();
 
-    public Dictionary<string, IViewFor> Views { get; } = new();
+    public Dictionary<NavigationRoute, IViewFor> Views { get; }
 
-    public Dictionary<string, TestViewModel> ViewModels { get; } = new();
+    public Dictionary<NavigationRoute, TestViewModel> ViewModels { get; }
+
+    public TestHost(Dictionary<NavigationRoute, IViewFor> views, Dictionary<NavigationRoute, TestViewModel> viewModels)
+    {
+        Views = views;
+        ViewModels = viewModels;
+    }
 
     protected override IObservable<IViewFor> PlatformNavigate()
     {
-        var page = request.Page;
-        var view = Views.GetValueOrDefault(page);
+        var route = Views.Keys.First(r => r.Match(CurrentRequest!));
+        var view = Views.GetValueOrDefault(route);
 
         if (view is null)
         {
-            view = new TestView(page);
-            Views.Add(page, view);
+            view = new TestView(route);
+            Views.Add(route, view);
         }
+        SetViewModel(view);
 
-        History.Push(page);
+        History.Push(route);
 
         return Observable.Return(view);
     }
@@ -36,18 +43,21 @@ class TestHost : NavigationHostBase
         History.Pop();
 
         var page = History.Peek();
+        var view = Views[page];
+        SetViewModel(view);
 
-        return Observable.Return(Views[page]);
+        return Observable.Return(view);
     }
 
     protected override object? InitializeViewModel()
     {
-        var vm = ViewModels.GetValueOrDefault(page);
+        var route = ViewModels.Keys.First(r => r.Match(CurrentRequest!));
+        var vm = ViewModels.GetValueOrDefault(route);
 
         if (vm is null)
         {
             vm = new TestViewModel();
-            ViewModels.Add(page, vm);
+            ViewModels.Add(route, vm);
         }
 
         return vm;

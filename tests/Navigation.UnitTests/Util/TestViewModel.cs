@@ -1,4 +1,5 @@
-﻿using ReactiveUI;
+﻿using Flurl;
+using ReactiveUI;
 using System;
 using System.Diagnostics;
 using System.Reactive;
@@ -13,7 +14,7 @@ class TestViewModel : ReactiveObject, INavigationAware
 
     public int NavigatingFromCount { get; private set; }
 
-    public IObservable<Unit> NavigatedTo(NavigationRequest request, INavigationHost host)
+    public IObservable<Unit> NavigatedTo(Url request, INavigationHost host)
     {
         NavigatedToCount++;
         return Observable.Return(Unit.Default);
