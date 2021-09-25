@@ -10,7 +10,7 @@ namespace P41.Navigation;
 /// Implementation of <see cref="INavigationHost"/> that can be configured with factory
 /// methods for Views and ViewModels.
 /// </summary>
-public class NavigationHost : NavigationHostBaseWithFactories<Frame, Type, NavigationHost>
+public class NavigationHost : NavigationHostBase<Frame, Type, NavigationHost>
 {
     /// <summary>
     /// Initialize a new <see cref="NavigationHost"/>.
@@ -35,6 +35,7 @@ public class NavigationHost : NavigationHostBaseWithFactories<Frame, Type, Navig
         var host = Host;
 
         _ = host.Navigate(InitializeView());
+        SetViewModel(host.Content as IViewFor);
 
         return GetHostContent(host);
     }
@@ -45,6 +46,7 @@ public class NavigationHost : NavigationHostBaseWithFactories<Frame, Type, Navig
         var host = Host;
 
         host.GoBack();
+        SetViewModel(host.Content as IViewFor);
 
         return GetHostContent(host);
     }

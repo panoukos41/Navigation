@@ -6,7 +6,7 @@ using System.Reactive.Linq;
 
 namespace P41.Navigation;
 
-public class NavigationHost : NavigationHostBaseWithFactories<FragmentManager, Fragment, NavigationHost>
+public class NavigationHost : NavigationHostBase<FragmentManager, Fragment, NavigationHost>
 {
     /// <summary>
     /// Gets or sets the FragmentContainerId that should be used for the navigation.
