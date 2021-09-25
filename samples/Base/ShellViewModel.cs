@@ -1,4 +1,5 @@
-﻿using P41.Navigation;
+﻿using Flurl;
+using P41.Navigation;
 using ReactiveUI;
 using System.Reactive;
 
@@ -14,9 +15,9 @@ namespace Base
         {
             Navigate = ReactiveCommand.Create<string>(page =>
             {
-                var request = new NavigationRequest(page);
+                var request = new Url(page);
 
-                request.AddPath(page switch
+                request.AppendPathSegment(page switch
                 {
                     "page1" => "1",
                     "page2" => "2",
