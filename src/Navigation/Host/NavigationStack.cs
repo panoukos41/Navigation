@@ -12,7 +12,7 @@ namespace P41.Navigation.Host;
 // todo: Update summaries
 
 /// <summary>
-/// A class that inherits <see cref="Stack{T}"/> where T is <see cref="NavigationRequest"/>
+/// A class that inherits <see cref="Stack{T}"/> where T is <see cref="Url"/>
 /// and implements <see cref="IObservable{T}"/> events for the stack operations.
 /// </summary>
 public class NavigationStack : Stack<Url>, IEquatable<NavigationStack>, IEquatable<Stack<Url>>
@@ -120,7 +120,7 @@ public class NavigationStack : Stack<Url>, IEquatable<NavigationStack>, IEquatab
 
     /// <summary>
     /// Turn this <see cref="NavigationStack"/> to a json array
-    /// of <see cref="NavigationRequest"/> strings.
+    /// of <see cref="Url"/> strings.
     /// </summary>
     /// <param name="indented">If json should be pretty printed or not.</param>
     /// <returns>A json representation of the stack.</returns>
