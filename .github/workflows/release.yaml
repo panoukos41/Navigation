@@ -14,24 +14,44 @@ on:
 
 jobs:
   build:
-    runs-on: windows-latest
+    runs-on: windows-2022
     outputs:
       nbgv: ${{ steps.nbgv.outputs.SemVer2 }}
     steps:
+      # From ReactiveUI workflow: https://github.com/reactiveui/ReactiveUI/blob/main/.github/workflows/ci-build.yml
+      - name: Update VS2022 preview
+        shell: bash
+        run: |
+          dotnet tool update -g dotnet-vs
+          vs modify preview +uwp
+          echo "##vso[task.prependpath]$(vs where preview --prop=InstallationPath)\MSBuild\Current\Bin"
+
+        # From ReactiveUI workflow: https://github.com/reactiveui/ReactiveUI/blob/main/.github/workflows/ci-build.yml
+      - name: Install Windows SDK 10.0.16299
+        shell: pwsh
+        run: |
+          Invoke-WebRequest -Uri https://go.microsoft.com/fwlink/p/?linkid=864422 -OutFile winsdk.exe
+          $startInfo = New-Object System.Diagnostics.ProcessStartInfo
+          $startInfo.FileName = "winsdk.exe"
+          $startInfo.Arguments = "/norestart /quiet"
+          $process = New-Object System.Diagnostics.Process
+          $process.StartInfo = $startInfo
+          $process.Start()
+          $process.WaitForExit()
+
       - name: Checkout
         uses: actions/checkout@v2
         with: { fetch-depth: 0 }
 
-      - name: Setup .NET 6.0
-        uses: actions/setup-dotnet@v1
-        with: { dotnet-version: "6.0.x", include-prerelease: true }
+      - name: Setup Java
+        uses: actions/setup-java@v2
+        with:
+          distribution: "temurin"
+          java-version: "11"
 
-      - name: Setup .NET 6.0 Workloads
+      - name: Setup .NET Workloads
         run: |
           dotnet workload install android
-
-      - name: Setup MSbuild
-        uses: microsoft/setup-msbuild@v1
 
       - name: Setup NerdBank.GitVersioning
         uses: dotnet/nbgv@v0.4
@@ -40,7 +60,14 @@ jobs:
 
       - name: Build
         run: |
-          msbuild Release.slnf /t:restore,build,pack /nowarn:MSB4011,VSX1000 /p:NoPackageAnalysis=true /verbosity:minimal /p:Configuration=${{ env.configuration }}
+          $env:Path += ";C:\Program Files\Microsoft Visual Studio\2022\Preview\Msbuild\Current\Bin";
+          msbuild Release.slnf `
+            /t:restore,build,pack `
+            /p:JavaSdkDirectory="C:\Program Files\Eclipse Foundation\jdk-11.0.12.7-hotspot" `
+            /p:NoPackageAnalysis=true `
+            /p:Configuration=${{ env.configuration }} `
+            /verbosity:minimal `
+            /nowarn:MSB4011,VSX1000 `
 
       - name: Test
         run: |
