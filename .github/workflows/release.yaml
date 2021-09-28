@@ -2,7 +2,6 @@ name: Release
 
 env:
   DOTNET_NOLOGO: true
-  configuration: Release
 
 on:
   workflow_dispatch:
@@ -63,9 +62,8 @@ jobs:
           $env:Path += ";C:\Program Files\Microsoft Visual Studio\2022\Preview\Msbuild\Current\Bin";
           msbuild Release.slnf `
             /t:restore,build,pack `
-            /p:JavaSdkDirectory="C:\Program Files\Eclipse Foundation\jdk-11.0.12.7-hotspot" `
             /p:NoPackageAnalysis=true `
-            /p:Configuration=${{ env.configuration }} `
+            /p:Configuration=Release `
             /verbosity:minimal `
             /nowarn:MSB4011,VSX1000 `
 
