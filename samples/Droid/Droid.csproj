@@ -8,7 +8,6 @@
 
   <ItemGroup>
     <PackageReference Include="ReactiveUI.AndroidX" Version="16.1.1" />
-    <PackageReference Include="Xamarin.Essentials" Version="1.7.0" />
     <PackageReference Include="Xamarin.Google.Android.Material" Version="1.4.0.2" />
   </ItemGroup>
 
