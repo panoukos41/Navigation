@@ -21,7 +21,7 @@ public abstract class NavigationHostBase : INavigationHost
     public int Count => Stack.Count;
 
     /// <inheritdoc/>
-    public IViewFor? CurrentView { get; private set; }
+    public object? CurrentView { get; private set; }
 
     /// <inheritdoc/>
     public Url? CurrentRequest => Stack.Count is 0 ? null : Stack.Peek();
@@ -96,7 +96,7 @@ public abstract class NavigationHostBase : INavigationHost
     private void NavigatedToViewModel()
     {
         // Going to the View/ViewModel
-        if (CurrentView?.ViewModel is INavigationAware nextVm)
+        if (CurrentView is IViewFor { ViewModel: INavigationAware nextVm })
         {
             nextVm.NavigatedTo(CurrentRequest!, this).Subscribe();
         }
@@ -104,7 +104,7 @@ public abstract class NavigationHostBase : INavigationHost
     private void NavigatingFromViewModel()
     {
         // Leaving the View/ViewModel
-        if (CurrentView?.ViewModel is INavigationAware previusVm)
+        if (CurrentView is IViewFor { ViewModel: INavigationAware previusVm })
         {
             previusVm.NavigatingFrom().Subscribe();
         }
@@ -127,14 +127,14 @@ public abstract class NavigationHostBase : INavigationHost
     /// This method is called on the implementation.
     /// </summary>
     /// <returns>The new <see cref="CurrentView"/> object.</returns>
-    protected abstract IObservable<IViewFor> PlatformNavigate();
+    protected abstract IObservable<object> PlatformNavigate();
 
     /// <summary>
     /// This method is called on the implementation.
     /// </summary>
     /// <returns>The new <see cref="CurrentView"/> object.</returns>
     /// <remarks>If we pop the root page null should be returned.</remarks>
-    protected abstract IObservable<IViewFor?> PlatformGoBack();
+    protected abstract IObservable<object?> PlatformGoBack();
 
     /// <summary>
     /// Initialize a new ViewModel for the CurrentRequest.
@@ -158,8 +158,8 @@ public abstract class NavigationHostBase<THost, TView> : NavigationHostBase
     /// </summary>
     public THost Host
     {
-        get => _host ?? throw new ArgumentNullException(nameof(Host), "A Host was not provided for navigation.");
-        set => _host = value ?? throw new NullReferenceException("You tried to set a null host.");
+        get => _host ?? throw new ArgumentNullException(nameof(Host), "A NavigationHost Host was not provided.");
+        set => _host = value ?? throw new NullReferenceException("You tried to set a null NavigationHost Host.");
     }
 
     /// <summary>

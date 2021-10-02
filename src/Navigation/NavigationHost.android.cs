@@ -53,23 +53,17 @@ public class NavigationHost : NavigationHostBase<FragmentManager, Fragment, Navi
     }
 
     /// <inheritdoc/>
-    protected override IObservable<IViewFor> PlatformNavigate()
+    protected override IObservable<object> PlatformNavigate()
     {
         var manager = Host;
 
         var fragment = InitializeView();
 
-        if (fragment is IViewFor view)
-        {
-            // We initialize the ViewModel now since most of the times
-            // the platform is much faster at creating views than us
-            // injecting the ViewModel
-            view.ViewModel = InitializeViewModel();
-        }
-
         var key = manager.BackStackEntryCount.ToString();
         var containerId = FragmentContainerId ??
             throw new NullReferenceException($"{nameof(FragmentContainerId)} was not set! Please set it before using the service.");
+
+        SetViewModel(fragment as IViewFor);
 
         manager
             .BeginTransaction()
@@ -83,7 +77,7 @@ public class NavigationHost : NavigationHostBase<FragmentManager, Fragment, Navi
     }
 
     /// <inheritdoc/>
-    protected override IObservable<IViewFor?> PlatformGoBack()
+    protected override IObservable<object?> PlatformGoBack()
     {
         var manager = Host;
 
@@ -92,12 +86,10 @@ public class NavigationHost : NavigationHostBase<FragmentManager, Fragment, Navi
         return GetHostContent(manager);
     }
 
-    private static IObservable<IViewFor> GetHostContent(FragmentManager manager)
+    private static IObservable<object> GetHostContent(FragmentManager manager)
     {
         var last = (manager.BackStackEntryCount - 1).ToString();
 
-        return manager.FindFragmentByTag(last) is IViewFor view
-            ? Observable.Return(view)
-            : throw new ArgumentException($"View must implement {nameof(IViewFor)}");
+        return Observable.Return(manager.FindFragmentByTag(last));
     }
 }

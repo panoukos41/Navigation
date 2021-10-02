@@ -21,7 +21,7 @@ public interface INavigationHost
     /// The currently displayed view. If nothing has been pushed
     /// or the root has been popped then this value will be null.
     /// </summary>
-    IViewFor? CurrentView { get; }
+    object? CurrentView { get; }
 
     /// <summary>
     /// The current active request. If nothing has been pushed
@@ -58,35 +58,6 @@ public interface INavigationHost
 /// </summary>
 public static class INavigationHostEx
 {
-    /// <summary>
-    /// Get the current view as <see cref="IViewFor{T}"/> this
-    /// can throw an <see cref="InvalidCastException"/>.
-    /// </summary>
-    /// <typeparam name="T">The ViewModel type.</typeparam>
-    /// <param name="host">The current host.</param>
-    /// <exception cref="InvalidCastException">When the View can't be cast.</exception>
-    /// <remarks>Null is returned only when the current view is null not when the cast fails.</remarks>
-    public static IViewFor<T>? GetCurrentView<T>(this INavigationHost host) where T : class =>
-        host.CurrentView is null ? null : (IViewFor<T>)host.CurrentView;
-
-    /// <summary>
-    /// Get the ViewModel property of a CurrentView.
-    /// </summary>
-    /// <param name="host">The current host.</param>
-    public static object? GetViewModel(this INavigationHost host) =>
-        host.CurrentView?.ViewModel;
-
-    /// <summary>
-    /// Get the ViewModel property of CurrentView as <typeparamref name="T"/>
-    /// this uses <see cref="GetCurrentView{T}(INavigationHost)"/> and can throw
-    /// an <see cref="InvalidCastException"/>.
-    /// </summary>
-    /// <typeparam name="T">The ViewModel type.</typeparam>
-    /// <param name="host">The current host.</param>
-    /// <exception cref="InvalidCastException">When the View can't be cast.</exception>
-    public static T? GetViewModel<T>(this INavigationHost host) where T : class =>
-        host.GetCurrentView<T>()?.ViewModel;
-
     /// <summary>
     /// Register a handler for the WhenNavigated event.
     /// </summary>
@@ -162,7 +133,7 @@ public static class INavigationHostEx
     /// <param name="host">The host to deconstruct.</param>
     /// <param name="currentView">The current View.</param>
     /// <param name="currentRequest">The current ViewModel.</param>
-    public static void Deconstruct(this INavigationHost host, out IViewFor? currentView, out Url? currentRequest)
+    public static void Deconstruct(this INavigationHost host, out object? currentView, out Url? currentRequest)
     {
         currentView = host.CurrentView;
         currentRequest = host.CurrentRequest;

@@ -30,31 +30,24 @@ public class NavigationHost : NavigationHostBase<Frame, Type, NavigationHost>
     }
 
     /// <inheritdoc/>
-    protected override IObservable<IViewFor> PlatformNavigate()
+    protected override IObservable<object> PlatformNavigate()
     {
         var host = Host;
 
         _ = host.Navigate(InitializeView());
         SetViewModel(host.Content as IViewFor);
 
-        return GetHostContent(host);
+        return Observable.Return(host.Content);
     }
 
     /// <inheritdoc/>
-    protected override IObservable<IViewFor?> PlatformGoBack()
+    protected override IObservable<object?> PlatformGoBack()
     {
         var host = Host;
 
         host.GoBack();
         SetViewModel(host.Content as IViewFor);
 
-        return GetHostContent(host);
-    }
-
-    private static IObservable<IViewFor> GetHostContent(Frame host)
-    {
-        return host.Content is IViewFor view
-            ? Observable.Return(view)
-            : throw new ArgumentException($"View must implement {nameof(IViewFor)}");
+        return Observable.Return(host.Content);
     }
 }
