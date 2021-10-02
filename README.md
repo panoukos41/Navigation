@@ -30,11 +30,6 @@ dotnet add package P41.Navigation --version X
 <PackageReference Include="P41.Navigation" Version="X" />
 ```
 
-### Package Manager
-```csharp
-Install-Package P41.Navigation -Version X
-```
-
 ## Getting Started
 
 You get started by configuring the `NavigationHost` for a platform:
@@ -64,8 +59,7 @@ host = INavigationHost; // Injected
 // Shared ViewModel constructor
 Navigate = ReactiveCommand.Create<string>(page =>
 {
-    var request = new NavigationRequest(page);
-    host.Navigate(request);
+    host.Navigate(page);
 });
 
 GoBack = ReactiveCommand.Create<Unit>(_ =>
@@ -74,13 +68,13 @@ GoBack = ReactiveCommand.Create<Unit>(_ =>
 }
 ```
 
-There are also samples in the [samples](./samples) folder to try.
+There are also samples in the [samples](./samples) folder that you should see and try!
 
 ## Build
 
 Install [Visual Studio 2022 Preview](https://visualstudio.microsoft.com/vs/preview) and [.NET 6.0](https://dotnet.microsoft.com/download/dotnet/6.0)
 
-Clone the project and open the solution then you just build the whole solution or project.
+Clone the project and open the solution then you just build the whole solution or specific project you want to build.
 
 ## Contribute
 
