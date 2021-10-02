@@ -35,7 +35,7 @@ public class NavigationHost : NavigationHostBase<Frame, Type, NavigationHost>
         var host = Host;
 
         _ = host.Navigate(InitializeView());
-        SetViewModel(host.Content as IViewFor);
+        SetViewModel(host.Content);
 
         return Observable.Return(host.Content);
     }

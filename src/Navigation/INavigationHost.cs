@@ -45,13 +45,7 @@ public interface INavigationHost
     /// a handler to determine if you want to pop.
     /// </summary>
     Interaction<Unit, Url?> Pop { get; }
-
-    /// <summary>
-    /// Interaction to determine if the root page should be popped.
-    /// </summary>
-    Interaction<Unit, bool> ShouldPopRoot { get; }
 }
-
 
 /// <summary>
 /// Extension methods for the <see cref="INavigationHost"/> interface.
@@ -71,18 +65,6 @@ public static class INavigationHostEx
 
     /// <summary>
     /// Push a new page/parameters pair to the stack and
-    /// get an IObservable that when subscribed executes the command.
-    /// </summary>
-    /// <param name="host">The current host.</param>
-    /// <param name="request">The page and any parameters to navigate to.</param>
-    /// <returns>Ab IObservable that when subscribed executes the command.</returns>
-    public static IObservable<Unit> Push(this INavigationHost host, Url request)
-    {
-        return host.Push.Handle(request);
-    }
-
-    /// <summary>
-    /// Push a new page/parameters pair to the stack and
     /// return an IDisposable that when disposed you usubscribe from the event.
     /// </summary>
     /// <param name="host">The current host.</param>
@@ -94,29 +76,6 @@ public static class INavigationHostEx
     }
 
     /// <summary>
-    /// Pop the current page/parameters pair from the stack and return it.
-    /// </summary>
-    /// <param name="host">The current host.</param>
-    /// <returns>The item that was removed from the stack.</returns>
-    public static IObservable<Url?> Pop(this INavigationHost host)
-    {
-        return host.Pop.Handle();
-    }
-
-    /// <summary>
-    /// Decide if you can go back depending on the page count.
-    /// </summary>
-    /// <param name="host">The current host.</param>
-    /// <param name="includeRoot">Wheter the root should be counted as a page that you can go back.</param>
-    /// <returns>An IDisposable to unsubscribe from the event.</returns>
-    public static bool CanGoBack(this INavigationHost host, bool includeRoot = false)
-    {
-        return includeRoot
-            ? host.Count > 0
-            : host.Count > 1;
-    }
-
-    /// <summary>
     /// Pop the current page/parameters pair from the stack and
     /// return an IDisposable that when disposed you usubscribe from the event.
     /// </summary>
@@ -124,7 +83,29 @@ public static class INavigationHostEx
     /// <returns>An IDisposable to unsubscribe from the event.</returns>
     public static IDisposable GoBack(this INavigationHost host)
     {
-        return host.Pop.Handle().Subscribe();
+        return host.Pop().Subscribe();
+    }
+
+    /// <summary>
+    /// Push a new page/parameters pair to the stack and
+    /// get an IObservable that when subscribed executes the command.
+    /// </summary>
+    /// <param name="host">The current host.</param>
+    /// <param name="request">The page and any parameters to navigate to.</param>
+    /// <returns>Ab IObservable that when subscribed executes the command.</returns>
+    public static IObservable<Unit> Push(this INavigationHost host, Url request)
+    {
+        return host.Push.Handle(request);
+    }
+
+    /// <summary>
+    /// Pop the current page/parameters pair from the stack and return it.
+    /// </summary>
+    /// <param name="host">The current host.</param>
+    /// <returns>The item that was removed from the stack.</returns>
+    public static IObservable<Url?> Pop(this INavigationHost host)
+    {
+        return host.Pop.Handle(Unit.Default);
     }
 
     /// <summary>

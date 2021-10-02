@@ -6,6 +6,7 @@ using System.Linq;
 using System.Reactive;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
+using System.Threading.Tasks;
 
 namespace P41.Navigation.Host;
 
@@ -14,6 +15,7 @@ namespace P41.Navigation.Host;
 /// </summary>
 public abstract class NavigationHostBase : INavigationHost
 {
+    private readonly Subject<Unit> _rootPopped = new();
     private readonly Subject<INavigationHost> _navigated = new();
 
     /// <inheritdoc/>
@@ -31,11 +33,18 @@ public abstract class NavigationHostBase : INavigationHost
     /// <inheritdoc/>
     public Interaction<Unit, Url?> Pop { get; } = new();
 
-    /// <inheritdoc/>
+    /// <summary>
+    /// Interaction to determine if the root page should be popped.
+    /// </summary>
     public Interaction<Unit, bool> ShouldPopRoot { get; } = new();
 
     /// <inheritdoc/>
     public IObservable<INavigationHost> WhenNavigated => _navigated.AsObservable();
+
+    /// <summary>
+    /// An observable that signals the root has been popped.
+    /// </summary>
+    public IObservable<Unit> WhenRootPopped => _rootPopped.AsObservable();
 
     /// <summary></summary>
     protected Stack<Url> Stack { get; set; }
@@ -46,42 +55,53 @@ public abstract class NavigationHostBase : INavigationHost
     protected NavigationHostBase()
     {
         Stack = new();
-        Push.RegisterHandler(async (input, handled) =>
-        {
-            if (CurrentRequest == input) return Unit.Default;
+        Push.RegisterHandler(PushExecute);
+        Pop.RegisterHandler(PopExecute);
+        ShouldPopRoot.RegisterHandler(static c => c.SetOutput(false));
+    }
 
+    private async Task PushExecute(InteractionContext<Url, Unit> context)
+    {
+        var input = context.Input;
+
+        if (CurrentRequest == input)
+        {
+            context.SetOutput(Unit.Default);
+            return;
+        }
+
+        NavigatingFromViewModel();
+
+        Stack.Push(input);
+        CurrentView = await PlatformNavigate();
+
+        NavigatedToViewModel();
+
+        context.SetOutput(Unit.Default);
+        _navigated.OnNext(this);
+    }
+
+    private async Task PopExecute(InteractionContext<Unit, Url?> context)
+    {
+        if (Stack.Count == 0) throw new InvalidOperationException("There is nothing to pop.");
+
+        if (Stack.Count > 1 || await ShouldPopRoot.Handle(Unit.Default))
+        {
             NavigatingFromViewModel();
 
-            Stack.Push(input);
-            CurrentView = await PlatformNavigate();
+            var popped = Stack.Pop();
+            CurrentView = await PlatformGoBack();
 
             NavigatedToViewModel();
 
+            context.SetOutput(popped);
             _navigated.OnNext(this);
-            return Unit.Default;
-        });
 
-        Pop.RegisterHandler(async (input, handled) =>
-        {
-            if (Stack.Count == 0) throw new InvalidOperationException("There is nothing to pop.");
+            if (Stack.Count == 0) _rootPopped.OnNext(Unit.Default);
 
-            if (Stack.Count > 1 || await ShouldPopRoot.Handle(Unit.Default))
-            {
-                NavigatingFromViewModel();
-
-                var popped = Stack.Pop();
-                CurrentView = await PlatformGoBack();
-
-                NavigatedToViewModel();
-
-                _navigated.OnNext(this);
-                return popped;
-            }
-
-            return CurrentRequest;
-        });
-
-        ShouldPopRoot.RegisterHandler(static c => c.SetOutput(false));
+            return;
+        }
+        context.SetOutput(CurrentRequest);
     }
 
     private void NavigatedToViewModel()
@@ -106,11 +126,11 @@ public abstract class NavigationHostBase : INavigationHost
     /// after its creation.
     /// </summary>
     /// <param name="view"></param>
-    protected void SetViewModel(IViewFor? view)
+    protected void SetViewModel(object? view)
     {
-        if (view is { ViewModel: null })
+        if (view is IViewFor { ViewModel: null } v)
         {
-            view.ViewModel = InitializeViewModel();
+            v.ViewModel = InitializeViewModel();
         }
     }
 

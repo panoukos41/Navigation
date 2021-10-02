@@ -63,7 +63,7 @@ public class NavigationHost : NavigationHostBase<FragmentManager, Fragment, Navi
         var containerId = FragmentContainerId ??
             throw new NullReferenceException($"{nameof(FragmentContainerId)} was not set! Please set it before using the service.");
 
-        SetViewModel(fragment as IViewFor);
+        SetViewModel(fragment);
 
         manager
             .BeginTransaction()
