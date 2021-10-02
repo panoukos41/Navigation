@@ -14,8 +14,7 @@ namespace P41.Navigation.Host;
 /// </summary>
 public abstract class NavigationHostBase : INavigationHost
 {
-    private NavigationStack _stack = null!;
-    private readonly Subject<INavigationHost> _whenNavigating = new();
+    private readonly Subject<INavigationHost> _navigated = new();
 
     /// <inheritdoc/>
     public int Count => Stack.Count;
@@ -36,20 +35,10 @@ public abstract class NavigationHostBase : INavigationHost
     public Interaction<Unit, bool> ShouldPopRoot { get; } = new();
 
     /// <inheritdoc/>
-    public IObservable<INavigationHost> WhenNavigating => _whenNavigating.AsObservable();
+    public IObservable<INavigationHost> WhenNavigated => _navigated.AsObservable();
 
-    /// <summary>
-    /// The navigation stack.
-    /// </summary>
-    protected NavigationStack Stack
-    {
-        get => _stack;
-        set
-        {
-            _stack = value;
-            Stack.Change.Subscribe(_ => _whenNavigating.OnNext(this));
-        }
-    }
+    /// <summary></summary>
+    protected Stack<Url> Stack { get; set; }
 
     /// <summary>
     /// Initialization of navigation logic.
@@ -68,6 +57,7 @@ public abstract class NavigationHostBase : INavigationHost
 
             NavigatedToViewModel();
 
+            _navigated.OnNext(this);
             return Unit.Default;
         });
 
@@ -84,6 +74,7 @@ public abstract class NavigationHostBase : INavigationHost
 
                 NavigatedToViewModel();
 
+                _navigated.OnNext(this);
                 return popped;
             }
 

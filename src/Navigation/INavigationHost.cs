@@ -30,9 +30,9 @@ public interface INavigationHost
     Url? CurrentRequest { get; }
 
     /// <summary>
-    /// An observable that signals a navigation (push or pop) is happening.
+    /// An observable that signals a navigation (push or pop) has happened.
     /// </summary>
-    IObservable<INavigationHost> WhenNavigating { get; }
+    IObservable<INavigationHost> WhenNavigated { get; }
 
     /// <summary>
     /// Intercation to push a new request. You can register
@@ -66,7 +66,7 @@ public static class INavigationHostEx
     /// <returns>An IDisposable that when disposed unsubscribes from the event.</returns>
     public static IDisposable WhenNavigated(this INavigationHost host, Action<INavigationHost> onNext)
     {
-        return host.WhenNavigating.Subscribe(onNext);
+        return host.WhenNavigated.Subscribe(onNext);
     }
 
     /// <summary>
