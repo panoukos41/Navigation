@@ -14,8 +14,6 @@ on:
 jobs:
   build:
     runs-on: windows-2022
-    outputs:
-      nbgv: ${{ steps.nbgv.outputs.SemVer2 }}
     steps:
       # From ReactiveUI workflow: https://github.com/reactiveui/ReactiveUI/blob/main/.github/workflows/ci-build.yml
       - name: Update VS2022 preview
@@ -77,25 +75,13 @@ jobs:
           name: nuget
           path: artifacts/nuget/*.nupkg
 
-  release:
-    runs-on: ubuntu-latest
-    needs: build
-    steps:
       - name: Create Release
         uses: actions/create-release@latest
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: v${{ needs.build.outputs.nbgv }}
-          release_name: ${{ needs.build.outputs.nbgv }}
-
-  publish:
-    runs-on: ubuntu-latest
-    needs: build
-    steps:
-      - name: Download NuGet Packages
-        uses: actions/download-artifact@v2
-        with: { name: nuget }
+          tag_name: v${{ env.NBGV_SemVer2 }}
+          release_name: ${{ env.NBGV_SemVer2 }}
 
       - name: Publish to NuGet
         env:
