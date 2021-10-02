@@ -4,9 +4,6 @@
     <Nullable>enable</Nullable>
     <Configuration Condition="$(Configuration) == ''">Debug</Configuration>
     <NoWarn>IDE0130;</NoWarn>
-
-    <!-- Temp settings -->
-    <DisableImplicitNamespaceImports>true</DisableImplicitNamespaceImports>
     <ImplicitUsings>false</ImplicitUsings>
 
     <!-- Set output paths -->

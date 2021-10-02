@@ -6,7 +6,15 @@
     <AssemblyName>$(RootNamespace)</AssemblyName>
     <IsPackable>false</IsPackable>
     <NoWarn>CS1591;</NoWarn>
+    <ImplicitUsings>false</ImplicitUsings>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Using Include="FluentAssertions" />
+    <Using Include="System.Reactive.Linq" />
+    <Using Include="System.Threading.Tasks" />
+    <Using Include="Xunit" />
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="FluentAssertions" Version="5.10.3" />

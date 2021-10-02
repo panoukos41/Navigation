@@ -1,6 +1,4 @@
-﻿using FluentAssertions;
-using Flurl;
-using Xunit;
+﻿using Flurl;
 
 namespace P41.Navigation.UnitTests;
 
