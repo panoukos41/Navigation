@@ -51,14 +51,14 @@ public class NavigationRoute : IEquatable<NavigationRoute?>
     {
         var segmentCount = HasOptionalParameter ? Segments.Count - 1 : Segments.Count;
 
-        if (request.PathSegments.Count < segmentCount) return false;
+        if (request.PathSegments.Count != segmentCount) return false;
 
         for (int i = 0; i < segmentCount; i++)
         {
             var segment = Segments[i];
             var requestSegment = request.PathSegments[i];
 
-            if (IsParameter(segment)) return true;
+            if (IsParameter(segment)) continue;
 
             if (segment != requestSegment) return false;
         }

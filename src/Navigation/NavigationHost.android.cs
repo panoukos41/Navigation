@@ -1,6 +1,5 @@
 ﻿using AndroidX.Fragment.App;
 using P41.Navigation.Host;
-using ReactiveUI;
 using System;
 using System.Reactive.Linq;
 
