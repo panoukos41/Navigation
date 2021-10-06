@@ -36,18 +36,32 @@ You get started by configuring the `NavigationHost` for a platform:
 
 ### UWP
 ```csharp
-new NavigationHost()
-    .AddPair("page1", static () => typeof(Page1), static () => new Page1ViewModel())
-    .AddPair("page2", static () => typeof(Page2), static () => new Page2ViewModel())
-    .AddPair("page3", static () => typeof(Page3), static () => new Page3ViewModel());
+// Application (App.xaml.cs in sample)
+services.AddSingleton(sp =>
+    new NavigationHost()
+    .Map("page1", static () => Services.Resolve<Page1ViewModel>(), static () => typeof(Page1))
+    .Map("page2", static () => Services.Resolve<Page2ViewModel>(), static () => typeof(Page2))
+    .Map("page3", static () => Services.Resolve<Page3ViewModel>(), static () => typeof(Page3)));
+
+// At the end of Application OnLaunched
+Window.Current.Activate();
+Services.Resolve<INavigationHost>().Navigate("page1/100");
 ```
 
 ### Android
 ```csharp
-new NavigationHost(SupportFragmentManager, R.Id.MainContainer)
-    .AddPair("page1", static () => new Page1(), static () => Services.Resolve<Page1ViewModel>())
-    .AddPair("page2", static () => new Page2(), static () => Services.Resolve<Page2ViewModel>())
-    .AddPair("page3", static () => new Page3(), static () => Services.Resolve<Page3ViewModel>());
+// Application (AndroidApp in sample)
+services.AddSingleton(sp =>
+    new NavigationHost()
+    .Map("page1", static () => Services.Resolve<Page1ViewModel>(), static () => new Page1())
+    .Map("page2", static () => Services.Resolve<Page2ViewModel>(), static () => new Page2())
+    .Map("page3", static () => Services.Resolve<Page3ViewModel>(), static () => new Page3())
+);
+
+// Main Activity (Shell in sample) at the end of OnCreate
+host.SetFragmentManager(SupportFragmentManager)
+    .SetFragmentContainerId(R.Id.MainContainer)
+    .Navigate("page1");
 ```
 
 ### .NET Standard 2.0
