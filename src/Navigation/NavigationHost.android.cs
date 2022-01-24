@@ -1,7 +1,7 @@
 ﻿using AndroidX.Fragment.App;
 using P41.Navigation.Host;
 using System;
-using System.Reactive.Linq;
+using System.Threading.Tasks;
 
 namespace P41.Navigation;
 
@@ -52,43 +52,30 @@ public class NavigationHost : NavigationHostBase<FragmentManager, Fragment, Navi
     }
 
     /// <inheritdoc/>
-    protected override IObservable<object> PlatformNavigate()
+    protected override object PlatformNavigate(Fragment view)
     {
-        var manager = Host;
-
-        var fragment = InitializeView();
-
-        var key = manager.BackStackEntryCount.ToString();
+        var key = Host.BackStackEntryCount.ToString();
         var containerId = FragmentContainerId ??
             throw new NullReferenceException($"{nameof(FragmentContainerId)} was not set! Please set it before using the service.");
 
-        SetViewModel(fragment);
-
-        manager
+        Host
             .BeginTransaction()
-            .Replace(containerId, fragment, key)
+            .Replace(containerId, view, key)
             .AddToBackStack(key)
             .Commit();
 
-        manager.ExecutePendingTransactions();
+        Host.ExecutePendingTransactions();
 
-        return GetHostContent(manager);
+        return view;
     }
 
     /// <inheritdoc/>
-    protected override IObservable<object?> PlatformGoBack()
+    protected override object? PlatformGoBack()
     {
-        var manager = Host;
+        Host.PopBackStackImmediate();
 
-        manager.PopBackStackImmediate();
+        var last = (Host.BackStackEntryCount - 1).ToString();
 
-        return GetHostContent(manager);
-    }
-
-    private static IObservable<object> GetHostContent(FragmentManager manager)
-    {
-        var last = (manager.BackStackEntryCount - 1).ToString();
-
-        return Observable.Return(manager.FindFragmentByTag(last));
+        return Host.FindFragmentByTag(last);
     }
 }

@@ -1,8 +1,9 @@
 ﻿using P41.Navigation.Host;
-using ReactiveUI;
 using System;
-using System.Reactive.Linq;
+using System.Diagnostics;
+using System.Threading.Tasks;
 using System.Windows.Controls;
+using System.Windows.Navigation;
 
 namespace P41.Navigation;
 
@@ -20,34 +21,17 @@ public class NavigationHost : NavigationHostBase<Frame, Type, NavigationHost>
     {
     }
 
-    /// <summary>
-    /// Initialize a new <see cref="NavigationHost"/> with the provided frame.
-    /// </summary>
-    /// <param name="host">The frame to use for navigation.</param>
-    public NavigationHost(Frame host)
+    /// <inheritdoc/>
+    protected override object PlatformNavigate(Type view)
     {
-        Host = host;
+        Host.Navigate(view);
+        return Host.Content;
     }
 
     /// <inheritdoc/>
-    protected override IObservable<object> PlatformNavigate()
+    protected override object? PlatformGoBack()
     {
-        var host = Host;
-
-        _ = host.Navigate(InitializeView());
-        SetViewModel(host.Content);
-
-        return Observable.Return(host.Content);
-    }
-
-    /// <inheritdoc/>
-    protected override IObservable<object?> PlatformGoBack()
-    {
-        var host = Host;
-
-        host.GoBack();
-        SetViewModel(host.Content as IViewFor);
-
-        return Observable.Return(host.Content);
+        Host.GoBack();
+        return Host.Content;
     }
 }

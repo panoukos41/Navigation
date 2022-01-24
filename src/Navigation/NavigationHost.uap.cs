@@ -1,14 +1,12 @@
 ﻿using P41.Navigation.Host;
-using ReactiveUI;
 using System;
-using System.Reactive.Linq;
 using Windows.UI.Xaml.Controls;
 
 namespace P41.Navigation;
 
 /// <summary>
-/// Implementation of <see cref="INavigationHost"/> with factory methods for
-/// View and ViewModel creation.
+/// Implementation of <see cref="INavigationHost"/> that can be configured with factory
+/// methods for Views and ViewModels.
 /// </summary>
 public class NavigationHost : NavigationHostBase<Frame, Type, NavigationHost>
 {
@@ -30,24 +28,16 @@ public class NavigationHost : NavigationHostBase<Frame, Type, NavigationHost>
     }
 
     /// <inheritdoc/>
-    protected override IObservable<object> PlatformNavigate()
+    protected override object PlatformNavigate(Type view)
     {
-        var host = Host;
-
-        _ = host.Navigate(InitializeView());
-        SetViewModel(host.Content as IViewFor);
-
-        return Observable.Return(host.Content);
+        Host.Navigate(view);
+        return Host.Content;
     }
 
     /// <inheritdoc/>
-    protected override IObservable<object?> PlatformGoBack()
+    protected override object? PlatformGoBack()
     {
-        var host = Host;
-
-        host.GoBack();
-        SetViewModel(host.Content);
-
-        return Observable.Return(host.Content);
+        Host.GoBack();
+        return Host.Content;
     }
 }

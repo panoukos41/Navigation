@@ -1,8 +1,6 @@
 ﻿using Microsoft.UI.Xaml.Controls;
 using P41.Navigation.Host;
-using ReactiveUI;
 using System;
-using System.Reactive.Linq;
 
 namespace P41.Navigation;
 
@@ -30,24 +28,16 @@ public class NavigationHost : NavigationHostBase<Frame, Type, NavigationHost>
     }
 
     /// <inheritdoc/>
-    protected override IObservable<object> PlatformNavigate()
+    protected override object PlatformNavigate(Type view)
     {
-        var host = Host;
-
-        _ = host.Navigate(InitializeView());
-        SetViewModel(host.Content);
-
-        return Observable.Return(host.Content);
+        Host.Navigate(view);
+        return Host.Content;
     }
 
     /// <inheritdoc/>
-    protected override IObservable<object?> PlatformGoBack()
+    protected override object? PlatformGoBack()
     {
-        var host = Host;
-
-        host.GoBack();
-        SetViewModel(host.Content as IViewFor);
-
-        return Observable.Return(host.Content);
+        Host.GoBack();
+        return Host.Content;
     }
 }
