@@ -3,7 +3,7 @@
     <LangVersion>preview</LangVersion>
     <Nullable>enable</Nullable>
     <Configuration Condition="$(Configuration) == ''">Debug</Configuration>
-    <NoWarn>IDE0130;</NoWarn>
+    <NoWarn>IDE0130;CA1416</NoWarn>
     <ImplicitUsings>false</ImplicitUsings>
 
     <!-- Set output paths -->
@@ -47,7 +47,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Nerdbank.GitVersioning" Version="3.4.240" PrivateAssets="All" />
-    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" />
+    <PackageReference Include="Nerdbank.GitVersioning" Version="3.4.255" PrivateAssets="All" />
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
   </ItemGroup>
 </Project>
