@@ -1,27 +1,27 @@
 ﻿<Project Sdk="MSBuild.Sdk.Extras">
 
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.0;net6.0-android;</TargetFrameworks>
-    <TargetFrameworks Condition="'$(OS)' == 'Windows_NT'">$(TargetFrameworks);uap10.0.16299;net5.0-windows7.0;net5.0-windows10.0.19041</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0;net6.0;net6.0-android;</TargetFrameworks>
+    <TargetFrameworks Condition="'$(OS)' == 'Windows_NT'">$(TargetFrameworks);net6.0-windows7.0;net6.0-windows10.0.19041;uap10.0.19041</TargetFrameworks>
     <RootNamespace>P41.Navigation</RootNamespace>
     <AssemblyName>$(RootNamespace)</AssemblyName>
     <OutputType>Library</OutputType>
   </PropertyGroup>
 
+  <!-- Android -->
   <PropertyGroup Condition="$(TargetFramework) == 'net6.0-android'">
     <SupportedOSPlatformVersion>21</SupportedOSPlatformVersion>
   </PropertyGroup>
 
   <!-- Windows WPF -->
-  <PropertyGroup Condition="$(TargetFramework) == 'net5.0-windows7.0'">
+  <PropertyGroup Condition="$(TargetFramework) == 'net6.0-windows7.0'">
     <UseWPF>true</UseWPF>
   </PropertyGroup>
 
   <!-- Windows WinUI3 -->
-  <PropertyGroup Condition="$(TargetFramework.StartsWith('net5.0-windows10.0'))">
+  <PropertyGroup Condition="$(TargetFramework.StartsWith('net6.0-windows10.0'))">
     <TargetPlatformMinVersion>10.0.19041</TargetPlatformMinVersion>
-    <RuntimeIdentifiers>win10-x86;win10-x64;</RuntimeIdentifiers>
-    <!--win10-arm64-->
+    <RuntimeIdentifiers>win10-x86;win10-x64;win10-arm64</RuntimeIdentifiers>
     <UseWinUI>true</UseWinUI>
   </PropertyGroup>
 
@@ -37,46 +37,40 @@
     <Compile Remove="**\*.wui.cs" />
 
     <PackageReference Include="Flurl" Version="3.0.2" />
-    <!--<PackageReference Include="ReactiveUI" Version="16.2.6" />-->
-    <PackageReference Include="ReactiveUI" Version="15.1.1" />
+    <PackageReference Include="ReactiveUI" Version="17.1.17" />
   </ItemGroup>
 
   <!-- netstandard2.0 -->
   <ItemGroup Condition="$(TargetFramework) == 'netstandard2.0'">
-    <PackageReference Include="System.Memory" Version="4.5.4" />
     <PackageReference Include="Microsoft.Bcl.HashCode" Version="1.1.1" />
+  </ItemGroup>
+
+  <!-- net6.0 -->
+  <ItemGroup Condition="$(TargetFramework) == 'net6.0'">
   </ItemGroup>
 
   <!-- Android -->
   <ItemGroup Condition="$(TargetFramework.StartsWith('net6.0-android'))">
     <Compile Include="**\*.android.cs" />
-
     <PackageReference Include="Xamarin.AndroidX.Fragment" Version="1.3.6" />
   </ItemGroup>
 
   <!-- Windows WPF -->
-  <ItemGroup Condition="$(TargetFramework) == 'net5.0-windows7.0'">
+  <ItemGroup Condition="$(TargetFramework) == 'net6.0-windows7.0'">
     <Compile Include="**\*.wpf.cs" />
-
-    <!--<PackageReference Include="ReactiveUI.WPF" Version="16.1.1" />-->
-    <!--<PackageReference Include="ReactiveUI.WPF" Version="15.1.1" />-->
   </ItemGroup>
-  
+
   <!-- Windows UAP -->
   <ItemGroup Condition="$(TargetFramework.StartsWith('uap'))">
     <Compile Include="**\*.uap.cs" />
-
-    <PackageReference Include="System.Memory" Version="4.5.4" />
     <PackageReference Include="Microsoft.Bcl.HashCode" Version="1.1.1" />
   </ItemGroup>
-  
-  <!-- Windows WinUI3 -->
-  <ItemGroup Condition="$(TargetFramework.StartsWith('net5.0-windows10.0'))">
-    <Compile Include="**\*.wui.cs" />
 
-    <PackageReference Include="Microsoft.ProjectReunion" Version="0.8.2" />
-    <PackageReference Include="Microsoft.ProjectReunion.Foundation" Version="0.8.2" />
-    <PackageReference Include="Microsoft.ProjectReunion.WinUI" Version="0.8.2" />
+  <!-- Windows WinUI3 -->
+  <ItemGroup Condition="$(TargetFramework.StartsWith('net6.0-windows10.0'))">
+    <Compile Include="**\*.wui.cs" />
+    <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.0.0" />
+    <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.22000.194" />
   </ItemGroup>
 
 </Project>
