@@ -13,7 +13,7 @@
 
     <OutputPath>$(Artifacts)\bin</OutputPath>
     <BaseOutputPath>$(Artifacts)\obj</BaseOutputPath>
-    <PackageOutputPath>$(ArtifactsDir)\nuget\</PackageOutputPath>
+    <PackageOutputPath>$(SourceDir)nuget</PackageOutputPath>
     <DocumentationFile>$(ArtifactsDir)\$(MSBuildProjectName)\doc.xml</DocumentationFile>
     <BaseIntermediateOutputPath>$(BaseOutputPath)</BaseIntermediateOutputPath>
   </PropertyGroup>
