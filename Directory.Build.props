@@ -44,6 +44,7 @@
 
   <ItemGroup>
     <None Include="$(SourceDir)\README.md" Pack="true" PackagePath="\"/>
+    <SourceRoot Include="$(MSBuildThisFileDirectory)/"/>
   </ItemGroup>
 
   <ItemGroup>
