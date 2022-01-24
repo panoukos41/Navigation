@@ -8,7 +8,7 @@ namespace P41.Navigation;
 /// <summary>
 /// A Host for navigation eg: Frame for UAP or FragmentHost for Android.
 /// The host can navigate between views and execute navigation methods
-/// on their ViewModels that implement <see cref="INavigationAware"/>.
+/// on their ViewModels that implement <see cref="INavigatableViewModel"/>.
 /// </summary>
 public interface INavigationHost
 {
@@ -35,7 +35,7 @@ public interface INavigationHost
     IObservable<INavigationHost> WhenNavigated { get; }
 
     /// <summary>
-    /// Intercation to push a new request. You can register
+    /// Interaction to push a new request. You can register
     /// a handler to determine if you want to push.
     /// </summary>
     Interaction<Url, Unit> Push { get; }
@@ -44,7 +44,7 @@ public interface INavigationHost
     /// Interaction to pop the current request. You can register
     /// a handler to determine if you want to pop.
     /// </summary>
-    Interaction<Unit, Url?> Pop { get; }
+    Interaction<Unit, Unit> Pop { get; }
 }
 
 /// <summary>
@@ -65,7 +65,7 @@ public static class INavigationHostEx
 
     /// <summary>
     /// Push a new page/parameters pair to the stack and
-    /// return an IDisposable that when disposed you usubscribe from the event.
+    /// return an IDisposable that when disposed you unsubscribe from the event.
     /// </summary>
     /// <param name="host">The current host.</param>
     /// <param name="request">The page and any parameters to navigate to.</param>
@@ -77,35 +77,13 @@ public static class INavigationHostEx
 
     /// <summary>
     /// Pop the current page/parameters pair from the stack and
-    /// return an IDisposable that when disposed you usubscribe from the event.
+    /// return an IDisposable that when disposed you unsubscribe from the event.
     /// </summary>
     /// <param name="host">The current host.</param>
     /// <returns>An IDisposable to unsubscribe from the event.</returns>
     public static IDisposable GoBack(this INavigationHost host)
     {
-        return host.Pop().Subscribe();
-    }
-
-    /// <summary>
-    /// Push a new page/parameters pair to the stack and
-    /// get an IObservable that when subscribed executes the command.
-    /// </summary>
-    /// <param name="host">The current host.</param>
-    /// <param name="request">The page and any parameters to navigate to.</param>
-    /// <returns>Ab IObservable that when subscribed executes the command.</returns>
-    public static IObservable<Unit> Push(this INavigationHost host, Url request)
-    {
-        return host.Push.Handle(request);
-    }
-
-    /// <summary>
-    /// Pop the current page/parameters pair from the stack and return it.
-    /// </summary>
-    /// <param name="host">The current host.</param>
-    /// <returns>The item that was removed from the stack.</returns>
-    public static IObservable<Url?> Pop(this INavigationHost host)
-    {
-        return host.Pop.Handle(Unit.Default);
+        return host.Pop.Handle(Unit.Default).Subscribe();
     }
 
     /// <summary>
