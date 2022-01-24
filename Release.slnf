@@ -1,9 +1,0 @@
-{
-  "solution": {
-    "path": "Navigation.sln",
-    "projects": [
-      "src\\Navigation\\Navigation.csproj",
-      "tests\\Navigation.UnitTests\\Navigation.UnitTests.csproj"
-    ]
-  }
-}
