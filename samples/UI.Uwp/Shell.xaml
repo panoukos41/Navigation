@@ -1,0 +1,24 @@
+﻿<Page
+    x:Class="UI.Uwp.Shell"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:msui="using:Microsoft.UI.Xaml.Controls"
+    mc:Ignorable="d">
+
+    <msui:NavigationView x:Name="View"
+                    PaneDisplayMode="Top" 
+                    IsSettingsVisible="False"
+                    AlwaysShowHeader="True">
+
+        <msui:NavigationView.MenuItems>
+            <msui:NavigationViewItem Content="Page 1" Tag="page1" />
+            <msui:NavigationViewItem Content="Page 1 inc by 50" Tag="page1/50" />
+            <msui:NavigationViewItem Content="Page 2" Tag="page2" />
+            <msui:NavigationViewItem Content="Page 3" Tag="page3" />
+        </msui:NavigationView.MenuItems>
+
+        <Frame x:Name="MainFrame" />
+    </msui:NavigationView>
+</Page>

@@ -1,0 +1,24 @@
+﻿<Window
+    x:Class="UI.Windows.Shell"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d">
+
+    <NavigationView x:Name="View" 
+                    PaneDisplayMode="Top" 
+                    IsSettingsVisible="False"
+                    AlwaysShowHeader="True"
+                    IsTitleBarAutoPaddingEnabled="False">
+        
+        <NavigationView.MenuItems>
+            <NavigationViewItem Content="Page 1" Tag="page1" />
+            <NavigationViewItem Content="Page 1 inc by 50" Tag="page1/50" />
+            <NavigationViewItem Content="Page 2" Tag="page2" />
+            <NavigationViewItem Content="Page 3" Tag="page3" />
+        </NavigationView.MenuItems>
+
+        <Frame x:Name="MainFrame" />
+    </NavigationView>
+</Window>
