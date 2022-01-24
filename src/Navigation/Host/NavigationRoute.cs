@@ -51,8 +51,6 @@ public class NavigationRoute : IEquatable<NavigationRoute?>
     {
         var segmentCount = HasOptionalParameter ? Segments.Count - 1 : Segments.Count;
 
-        if (request.PathSegments.Count != segmentCount) return false;
-
         for (int i = 0; i < segmentCount; i++)
         {
             var segment = Segments[i];
@@ -95,8 +93,7 @@ public class NavigationRoute : IEquatable<NavigationRoute?>
     /// <inheritdoc/>
     public bool Equals(NavigationRoute? other)
     {
-        return other != null &&
-               Template == other.Template;
+        return other != null && Template == other.Template;
     }
 
     /// <inheritdoc/>

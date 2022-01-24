@@ -6,17 +6,41 @@ using System.Linq;
 using System.Reactive;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
-using System.Threading.Tasks;
 
 namespace P41.Navigation.Host;
 
 /// <summary>
+/// Helper Dictionary class to store mappings.
+/// </summary>
+/// <typeparam name="TView">The type of the view stored.</typeparam>
+internal class Mappings<TView> : Dictionary<NavigationRoute, Func<TView>>
+    where TView : class
+{
+    public Func<TView> Match(Url route)
+    {
+        try
+        {
+            return this.First(r => r.Key.Match(route)).Value;
+        }
+        catch
+        {
+            throw new Exceptions.CouldNotNavigateException(route);
+        }
+    }
+}
+
+/// <summary>
 /// A base implementation for the <see cref="INavigationHost"/>.
 /// </summary>
-public abstract class NavigationHostBase : INavigationHost
+/// <typeparam name="TView">The type of the view used for navigation.</typeparam>
+/// <typeparam name="TImpliments">The type of the object that inherits this class.</typeparam>
+public abstract class NavigationHostBase<TView, TImpliments> : INavigationHost
+    where TView : class
+    where TImpliments : NavigationHostBase<TView, TImpliments>
 {
     private readonly Subject<Unit> _rootPopped = new();
     private readonly Subject<INavigationHost> _navigated = new();
+    private Mappings<TView> _mappings = new();
 
     /// <inheritdoc/>
     public int Count => Stack.Count;
@@ -31,12 +55,12 @@ public abstract class NavigationHostBase : INavigationHost
     public Interaction<Url, Unit> Push { get; } = new();
 
     /// <inheritdoc/>
-    public Interaction<Unit, Url?> Pop { get; } = new();
+    public Interaction<Unit, Unit> Pop { get; } = new();
 
     /// <summary>
-    /// Interaction to determine if the root page should be popped.
+    /// Function to determine if the root page should be popped.
     /// </summary>
-    public Interaction<Unit, bool> ShouldPopRoot { get; } = new();
+    public Func<bool> ShouldPopRoot { get; set; }
 
     /// <inheritdoc/>
     public IObservable<INavigationHost> WhenNavigated => _navigated.AsObservable();
@@ -46,7 +70,9 @@ public abstract class NavigationHostBase : INavigationHost
     /// </summary>
     public IObservable<Unit> WhenRootPopped => _rootPopped.AsObservable();
 
-    /// <summary></summary>
+    /// <summary>
+    /// The underlying navigation stack.
+    /// </summary>
     protected Stack<Url> Stack { get; set; }
 
     /// <summary>
@@ -57,14 +83,28 @@ public abstract class NavigationHostBase : INavigationHost
         Stack = new();
         Push.RegisterHandler(PushExecute);
         Pop.RegisterHandler(PopExecute);
-        ShouldPopRoot.RegisterHandler(static c => c.SetOutput(false));
+        ShouldPopRoot = static () => false;
     }
 
-    private async Task PushExecute(InteractionContext<Url, Unit> context)
+    /// <summary>
+    /// Map routes to views.
+    /// </summary>
+    public TImpliments Map(NavigationRoute route, Func<TView> viewFactory)
     {
-        var input = context.Input;
+        _mappings[route] = viewFactory;
+        return (TImpliments)this;
+    }
 
-        if (CurrentRequest == input)
+    /// <summary>
+    /// Get an array of the registered mappings.
+    /// </summary>
+    public NavigationRoute[] GetMappings() => _mappings.Keys.ToArray();
+
+    private void PushExecute(InteractionContext<Url, Unit> context)
+    {
+        var request = context.Input;
+
+        if (CurrentRequest == request)
         {
             context.SetOutput(Unit.Default);
             return;
@@ -72,8 +112,11 @@ public abstract class NavigationHostBase : INavigationHost
 
         NavigatingFromViewModel();
 
-        Stack.Push(input);
-        CurrentView = await PlatformNavigate();
+        Stack.Push(request);
+
+        var view = _mappings.Match(request).Invoke();
+
+        CurrentView = PlatformNavigate(view);
 
         NavigatedToViewModel();
 
@@ -81,150 +124,80 @@ public abstract class NavigationHostBase : INavigationHost
         _navigated.OnNext(this);
     }
 
-    private async Task PopExecute(InteractionContext<Unit, Url?> context)
+    private void PopExecute(InteractionContext<Unit, Unit> context)
     {
         if (Stack.Count == 0) throw new InvalidOperationException("There is nothing to pop.");
 
-        if (Stack.Count > 1 || await ShouldPopRoot.Handle(Unit.Default))
+        if (Stack.Count > 1 || ShouldPopRoot())
         {
             NavigatingFromViewModel();
 
-            var popped = Stack.Pop();
-            CurrentView = await PlatformGoBack();
+            Stack.Pop();
+
+            CurrentView = PlatformGoBack();
 
             NavigatedToViewModel();
 
-            context.SetOutput(popped);
+            context.SetOutput(Unit.Default);
             _navigated.OnNext(this);
 
             if (Stack.Count == 0) _rootPopped.OnNext(Unit.Default);
-
             return;
         }
-        context.SetOutput(CurrentRequest);
+        context.SetOutput(Unit.Default);
     }
 
+    /// <summary>
+    /// Executes methods on ViewModel when it is navigated to.
+    /// </summary>
     private void NavigatedToViewModel()
     {
-        // Going to the View/ViewModel
-        if (CurrentView is IViewFor { ViewModel: INavigationAware nextVm })
+        if (CurrentView is IViewFor { ViewModel: INavigatableViewModel nextVm })
         {
-            nextVm.NavigatedTo(CurrentRequest!, this).Subscribe();
+            nextVm.Navigator.Host ??= this;
+            nextVm.Navigator.NavigatedTo(CurrentRequest!);
         }
     }
+
+    /// <summary>
+    /// Execute methods on ViewModel when it is navigated away.
+    /// </summary>
     private void NavigatingFromViewModel()
     {
-        // Leaving the View/ViewModel
-        if (CurrentView is IViewFor { ViewModel: INavigationAware previusVm })
+        if (CurrentView is IViewFor { ViewModel: INavigatableViewModel previusVm })
         {
-            previusVm.NavigatingFrom().Subscribe();
+            previusVm.Navigator.Host ??= this;
+            previusVm.Navigator.NavigatingFrom();
         }
     }
 
     /// <summary>
-    /// Called by implementations to set the view model on a View
-    /// after its creation.
+    /// Executes platform navigation logic and returns the active view.
     /// </summary>
-    /// <param name="view"></param>
-    protected void SetViewModel(object? view)
-    {
-        if (view is IViewFor { ViewModel: null } v)
-        {
-            v.ViewModel = InitializeViewModel();
-        }
-    }
+    protected abstract object PlatformNavigate(TView view);
 
     /// <summary>
-    /// This method is called on the implementation.
+    /// Executes platform backwards navigation logic and returns the active view.
     /// </summary>
-    /// <returns>The new <see cref="CurrentView"/> object.</returns>
-    protected abstract IObservable<object> PlatformNavigate();
-
-    /// <summary>
-    /// This method is called on the implementation.
-    /// </summary>
-    /// <returns>The new <see cref="CurrentView"/> object.</returns>
-    /// <remarks>If we pop the root page null should be returned.</remarks>
-    protected abstract IObservable<object?> PlatformGoBack();
-
-    /// <summary>
-    /// Initialize a new ViewModel for the CurrentRequest.
-    /// </summary>
-    protected abstract object? InitializeViewModel();
+    protected abstract object? PlatformGoBack();
 }
 
-/// <summary>
-/// A base implementation for the <see cref="INavigationHost"/> that
-/// takes into consideration the Host and the views that are hosted..
-/// </summary>
-/// <typeparam name="THost">The type of the host.</typeparam>
-/// <typeparam name="TView">The type of the hosted views.</typeparam>
-public abstract class NavigationHostBase<THost, TView> : NavigationHostBase
+/// <inheritdoc/>
+/// <typeparam name="THost">The type of the platform host.</typeparam>
+/// <typeparam name="TView">The type of the view used for navigation.</typeparam>
+/// <typeparam name="TImpliments">The type of the object that inherits this class.</typeparam>
+public abstract class NavigationHostBase<THost, TView, TImpliments> : NavigationHostBase<TView, TImpliments>
+    where TView : class
+    where TImpliments : NavigationHostBase<TView, TImpliments>
 {
-    private THost _host = default!;
+    private THost? _host;
 
     /// <summary>
-    /// Gets or sets the Host that should be used for the navigation.
-    /// Do not leave this null when using the host.
+    /// The platform host.
     /// </summary>
     public THost Host
     {
-        get => _host ?? throw new ArgumentNullException(nameof(Host), "A NavigationHost Host was not provided.");
-        set => _host = value ?? throw new NullReferenceException("You tried to set a null NavigationHost Host.");
-    }
-
-    /// <summary>
-    /// Initialize a new View for the CurrentRequest.
-    /// </summary>
-    protected abstract TView InitializeView();
-}
-
-/// <summary>
-/// Base implementation from which all platform implementations derive.
-/// It contains dictionaries with factory methods and already overrides
-/// InitliazeViewmodel and InitializeView to use the factory methods.
-/// </summary>
-/// <typeparam name="THost">The type of the host.</typeparam>
-/// <typeparam name="TView">The type of the stored view.</typeparam>
-/// <typeparam name="TImplementation">The type inheriting this base.</typeparam>
-public abstract class NavigationHostBase<THost, TView, TImplementation> : NavigationHostBase<THost, TView>
-    where TImplementation : NavigationHostBase<THost, TView, TImplementation>
-{
-    /// <summary>
-    /// A <see cref="NavigationRoute"/> to Vm/View factories.
-    /// </summary>
-    private Dictionary<NavigationRoute, (Func<object>? vm, Func<TView> view)> Factories { get; } = new();
-
-    /// <inheritdoc/>
-    protected override TView InitializeView()
-    {
-        var factory = Factories.First(r => r.Key.Match(CurrentRequest!)).Value.view;
-
-        return factory.Invoke();
-    }
-
-    /// <inheritdoc/>
-    protected override object? InitializeViewModel()
-    {
-        var factory = Factories.First(r => r.Key.Match(CurrentRequest!)).Value.vm;
-
-        return factory?.Invoke();
-    }
-
-    /// <summary>
-    /// Map a <see cref="NavigationRoute"/> to factory methods for Vm/View.
-    /// </summary>
-    /// <param name="route">The rout that coresponds to the Vm/View pair.</param>
-    /// <param name="vmFactory">A factory method to create the viewmodel for the route.</param>
-    /// <param name="viewFactory">A factory method to create the <typeparamref name="TView"/> for the route.</param>
-    /// <returns>The host for further configuration.</returns>
-    /// <remarks>
-    /// If a route is mapped for a second time it will override the previous route.
-    /// A vm factory method can be null in that case only view navigation happens.
-    /// </remarks>
-    public TImplementation Map(NavigationRoute route, Func<object>? vmFactory, Func<TView> viewFactory)
-    {
-        Factories[route] = (vmFactory, viewFactory);
-        return (TImplementation)this;
+        get => _host ?? throw new ArgumentNullException("Host");
+        set => _host = value;
     }
 }
