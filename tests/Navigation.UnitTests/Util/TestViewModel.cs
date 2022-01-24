@@ -1,28 +1,38 @@
-﻿using Flurl;
-using ReactiveUI;
-using System;
+﻿using ReactiveUI;
 using System.Diagnostics;
-using System.Reactive;
-using System.Reactive.Linq;
+using System.Reactive.Disposables;
 
 namespace P41.Navigation.UnitTests.Util;
 
 [DebuggerDisplay("NavigatedTo: {NavigatedToCount}, NavigatedFrom: {NavigatingFromCount}")]
-class TestViewModel : ReactiveObject, INavigationAware
+class TestViewModel : ReactiveObject, INavigatableViewModel, IActivatableViewModel
 {
     public int NavigatedToCount { get; private set; }
 
     public int NavigatingFromCount { get; private set; }
 
-    public IObservable<Unit> NavigatedTo(Url request, INavigationHost host)
-    {
-        NavigatedToCount++;
-        return Observable.Return(Unit.Default);
-    }
+    public ViewModelNavigator Navigator { get; } = new();
 
-    public IObservable<Unit> NavigatingFrom()
+    public ViewModelActivator Activator { get; } = new();
+
+    public TestViewModel()
     {
-        NavigatingFromCount++;
-        return Observable.Return(Unit.Default);
+        this.WhenActivated((CompositeDisposable d) =>
+        {
+            d.Add(Disposable.Create(() =>
+            {
+
+            }));
+        });
+
+        this.WhenNavigatedTo((url, d) =>
+        {
+            NavigatedToCount++;
+
+            d.Add(Disposable.Create(() =>
+            {
+                NavigatingFromCount++;
+            }));
+        });
     }
 }

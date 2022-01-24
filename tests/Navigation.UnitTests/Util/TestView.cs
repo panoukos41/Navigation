@@ -11,6 +11,7 @@ class TestView : IViewFor<TestViewModel>
     public TestView(string page)
     {
         this.page = page;
+        ViewModel = new();
     }
 
     public TestViewModel? ViewModel { get; set; }

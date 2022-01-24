@@ -1,65 +1,32 @@
-﻿using P41.Navigation.Host;
-using ReactiveUI;
-using System;
+﻿using Flurl;
+using P41.Navigation.Host;
 using System.Collections.Generic;
-using System.Linq;
-using System.Reactive.Linq;
 
 namespace P41.Navigation.UnitTests.Util;
 
-class TestHost : NavigationHostBase
+class TestHost : NavigationHostBase<TestView, TestHost>
 {
-    public Stack<NavigationRoute> History { get; } = new();
+    public Stack<Url> PushHistory { get; } = new();
 
-    public Dictionary<NavigationRoute, IViewFor> Views { get; }
+    public Stack<Url> PopHistory { get; } = new();
 
-    public Dictionary<NavigationRoute, TestViewModel> ViewModels { get; }
+    public Stack<object> Views { get; } = new();
 
-    public TestHost(Dictionary<NavigationRoute, IViewFor> views, Dictionary<NavigationRoute, TestViewModel> viewModels)
+    protected override object PlatformNavigate(TestView view)
     {
-        Views = views;
-        ViewModels = viewModels;
+        PushHistory.Push(CurrentRequest ?? "");
+
+        Views.Push(view);
+        return view;
     }
 
-    protected override IObservable<IViewFor> PlatformNavigate()
+    protected override object? PlatformGoBack()
     {
-        var route = Views.Keys.First(r => r.Match(CurrentRequest!));
-        var view = Views.GetValueOrDefault(route);
+        PopHistory.Push(CurrentRequest ?? "");
 
-        if (view is null)
-        {
-            view = new TestView(route);
-            Views.Add(route, view);
-        }
-        SetViewModel(view);
+        Views.Pop();
+        var view = Views.Peek();
 
-        History.Push(route);
-
-        return Observable.Return(view);
-    }
-
-    protected override IObservable<IViewFor?> PlatformGoBack()
-    {
-        History.Pop();
-
-        var page = History.Peek();
-        var view = Views[page];
-        SetViewModel(view);
-
-        return Observable.Return(view);
-    }
-
-    protected override object? InitializeViewModel()
-    {
-        var route = ViewModels.Keys.First(r => r.Match(CurrentRequest!));
-        var vm = ViewModels.GetValueOrDefault(route);
-
-        if (vm is null)
-        {
-            vm = new TestViewModel();
-            ViewModels.Add(route, vm);
-        }
-
-        return vm;
+        return view;
     }
 }

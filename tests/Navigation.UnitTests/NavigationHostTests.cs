@@ -6,22 +6,13 @@ namespace P41.Navigation.UnitTests;
 public class NavigationHostTests
 {
     [Fact]
-    public async Task Should_navigate_to_from_and_count_events()
+    public void Should_Navigate_Correctly()
     {
         // Arrange
-        var host = new TestHost(
-            views: new()
-            {
-                ["home"] = new TestView("home"),
-                ["details/{?}"] = new TestView("details"),
-                ["settings"] = new TestView("settings"),
-            },
-            viewModels: new()
-            {
-                ["home"] = new TestViewModel(),
-                ["details/{?}"] = new TestViewModel(),
-                ["settings"] = new TestViewModel(),
-            });
+        var host = new TestHost()
+            .Map("home", () => new("home"))
+            .Map("details/{?}", () => new("details"))
+            .Map("settings", () => new("settings"));
 
         Url requestHome = "home";
         Url requestDetails = "details";
@@ -33,53 +24,42 @@ public class NavigationHostTests
 
         // Act
         // Navigated to home 1
-        await host.Push(requestHome);
-        await host.Push(requestHome);
+        host.Navigate(requestHome);
+        host.Navigate(requestHome);
 
         // Navigated to details 1, Navigating from home 1
-        await host.Push(requestDetails2);
-        await host.Push(requestDetails2);
+        host.Navigate(requestDetails2);
+        host.Navigate(requestDetails2);
 
         // Navigated to settings 1, Navigating from details 1
-        await host.Push(requestSettings);
-        await host.Push(requestSettings);
+        host.Navigate(requestSettings);
+        host.Navigate(requestSettings);
 
         // Navigated to details 2, Navigating from settings 1
-        await host.Push(requestDetails);
-        await host.Push(requestDetails);
+        host.Navigate(requestDetails);
+        host.Navigate(requestDetails);
 
         // Navigated to settings 2, Navigating from details 2
-        (await host.Pop()).Should().Be(requestDetails);
+        host.GoBack();
+        host.CurrentRequest.Should().Be(requestSettings);
 
         // Navigated to details 3, Navigating from settings 2
-        (await host.Pop()).Should().Be(requestSettings);
+        host.GoBack();
+        host.CurrentRequest.Should().Be(requestDetails2);
 
         // Navigated to home 2, Navigating from details 3
-        (await host.Pop()).Should().Be(requestDetails2);
+        host.GoBack();
+        host.CurrentRequest.Should().Be(requestHome);
 
         // Returns root multiple times, should not change Count, should return root request.
-        (await host.Pop()).Should().Be(requestHome);
+        host.GoBack();
         host.Count.Should().Be(1);
 
-        (await host.Pop()).Should().Be(requestHome);
+        host.GoBack();
         host.Count.Should().Be(1);
 
-        (await host.Pop()).Should().Be(requestHome);
+        host.GoBack();
         host.Count.Should().Be(1);
-
-        // Assert
-        var homeVm = host.ViewModels["home"];
-        var detailsVm = host.ViewModels["details/{?}"];
-        var settingsVm = host.ViewModels["settings"];
-
-        homeVm.NavigatedToCount.Should().Be(2);
-        homeVm.NavigatingFromCount.Should().Be(1);
-
-        detailsVm.NavigatedToCount.Should().Be(3);
-        detailsVm.NavigatingFromCount.Should().Be(3);
-
-        settingsVm.NavigatedToCount.Should().Be(2);
-        settingsVm.NavigatingFromCount.Should().Be(2);
 
         whenNavigatedCount.Should().Be(7);
     }
