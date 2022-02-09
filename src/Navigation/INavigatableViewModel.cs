@@ -1,4 +1,4 @@
-using Flurl;
+﻿using Flurl;
 using ReactiveUI;
 using System;
 using System.Collections.Generic;
@@ -165,5 +165,37 @@ public static class NavigatorExtensions
         if (item.Navigator.Host is null) throw new ArgumentNullException("Host", "The Navigator Host property is null.");
 
         item.Navigator.Host.GoBack();
+    }
+}
+
+/// <summary>
+/// Extension methods for <see cref="IViewFor{T}"/> imlementations.
+/// </summary>
+public static class IViewForExtensions
+{
+    /// <summary>
+    /// Navigate to the <paramref name="url"/> destination.
+    /// </summary>
+    public static void Navigate<T>(this IViewFor<T> view, Url url)
+        where T : class, INavigatableViewModel
+    {
+        if (view is null) throw new ArgumentNullException("view");
+        if (view.ViewModel is null) throw new ArgumentNullException("view.ViewModel");
+        if (view.ViewModel.Navigator.Host is null) throw new ArgumentNullException("view.ViewModel.Navigator.Host", "The Navigator Host property is null.");
+
+        view.ViewModel.Navigator.Host.Navigate(url);
+    }
+
+    /// <summary>
+    /// Request to navigate back.
+    /// </summary>
+    public static void GoBack<T>(this IViewFor<T> view, Url url)
+        where T : class, INavigatableViewModel
+    {
+        if (view is null) throw new ArgumentNullException("view");
+        if (view.ViewModel is null) throw new ArgumentNullException("view.ViewModel");
+        if (view.ViewModel.Navigator.Host is null) throw new ArgumentNullException("view.ViewModel.Navigator.Host", "The Navigator Host property is null.");
+
+        view.ViewModel.Navigator.Host.GoBack();
     }
 }
