@@ -1,4 +1,5 @@
-﻿using Flurl;
+using Flurl;
+using ReactiveUI;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -124,7 +125,7 @@ public sealed class ViewModelNavigator : IDisposable
 /// <summary>
 /// Extension methods that help with <see cref="ViewModelNavigator"/> class.
 /// </summary>
-public static class NavigatorMixins
+public static class NavigatorExtensions
 {
     /// <summary>
     /// Setup logic to be executed when a ViewModel is navigated to.
@@ -147,7 +148,7 @@ public static class NavigatorMixins
     /// <summary>
     /// Navigate to the <paramref name="url"/> destination.
     /// </summary>
-    public static void NavigateTo(this INavigatableViewModel item, Url url)
+    public static void Navigate(this INavigatableViewModel item, Url url)
     {
         if (item is null) throw new ArgumentNullException("item");
         if (item.Navigator.Host is null) throw new ArgumentNullException("Host", "The Navigator Host property is null.");
@@ -158,7 +159,7 @@ public static class NavigatorMixins
     /// <summary>
     /// Request to navigate back.
     /// </summary>
-    public static void GoBack(this INavigatableViewModel item, Url url)
+    public static void GoBack(this INavigatableViewModel item)
     {
         if (item is null) throw new ArgumentNullException("item");
         if (item.Navigator.Host is null) throw new ArgumentNullException("Host", "The Navigator Host property is null.");

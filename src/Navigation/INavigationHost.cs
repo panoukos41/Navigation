@@ -50,7 +50,7 @@ public interface INavigationHost
 /// <summary>
 /// Extension methods for the <see cref="INavigationHost"/> interface.
 /// </summary>
-public static class INavigationHostEx
+public static class INavigationHostExtensions
 {
     /// <summary>
     /// Register a handler for the WhenNavigated event.
