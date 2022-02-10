@@ -154,8 +154,7 @@ public abstract class NavigationHostBase<TView, TImpliments> : INavigationHost
     {
         if (CurrentView is IViewFor { ViewModel: INavigatableViewModel nextVm })
         {
-            nextVm.Navigator.Host ??= this;
-            nextVm.Navigator.NavigatedTo(CurrentRequest!);
+            nextVm.Navigator.NavigatedTo(CurrentRequest!, this);
         }
     }
 
@@ -166,8 +165,7 @@ public abstract class NavigationHostBase<TView, TImpliments> : INavigationHost
     {
         if (CurrentView is IViewFor { ViewModel: INavigatableViewModel previusVm })
         {
-            previusVm.Navigator.Host ??= this;
-            previusVm.Navigator.NavigatingFrom();
+            previusVm.Navigator.NavigatingFrom(this);
         }
     }
 

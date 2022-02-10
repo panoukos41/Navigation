@@ -43,12 +43,10 @@ public sealed class ViewModelNavigator : IDisposable
     private int _refCount;
 
     /// <summary>
-    /// The <see cref="INavigationHost"/> associated with this Navigator.
+    /// The <see cref="INavigationHost"/> associated with this Navigator
+    /// and will be used to perform navigation.
     /// </summary>
-    /// <remarks>
-    /// Typically 
-    /// </remarks>
-    public INavigationHost? Host { get; set; }
+    public INavigationHost? Host { get; private set; }
 
     /// <summary>
     /// Gets an observable which will tick every time the Navigator is navigated to.
@@ -74,9 +72,11 @@ public sealed class ViewModelNavigator : IDisposable
     /// This method is called when a View is navigated to.
     /// </summary>
     /// <param name="url"></param>
+    /// <param name="host">The host that triggered this navigation.</param>
     /// <returns>A Disposable that calls NavigatingFrom when disposed.</returns>
-    public IDisposable NavigatedTo(Url url)
+    public IDisposable NavigatedTo(Url url, INavigationHost host)
     {
+        Host = host;
         if (Interlocked.Increment(ref _refCount) == 1)
         {
             var value = new CompositeDisposable(_blocks.SelectMany(x => x(url)));
@@ -86,16 +86,18 @@ public sealed class ViewModelNavigator : IDisposable
 
         return Disposable.Create(delegate
         {
-            NavigatingFrom();
+            NavigatingFrom(host);
         });
     }
 
     /// <summary>
     /// This method is called when a view is navigating to another view.
     /// </summary>
+    /// <param name="host">The host that triggered this.</param>
     /// <param name="ignoreRefCount"></param>
-    public void NavigatingFrom(bool ignoreRefCount = false)
+    public void NavigatingFrom(INavigationHost host, bool ignoreRefCount = false)
     {
+        Host = host;
         if (Interlocked.Decrement(ref _refCount) == 0 || ignoreRefCount)
         {
             Interlocked.Exchange(ref _navigationHandle, Disposable.Empty).Dispose();
