@@ -1,0 +1,19 @@
+<Project>
+  <PropertyGroup Condition="'$(OS)' == 'Windows_NT'">
+    <TargetFrameworks>$(TargetFrameworks);uap10.0.19041</TargetFrameworks>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="$(TargetFramework.Contains('uap10'))">
+    
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="**\*.uap.cs" />
+    <Compile Remove="**\*.uap.cs" />
+    <Compile Condition="$(TargetFramework.Contains('uap10'))" Include="**\*.uap.cs" />
+  </ItemGroup>
+
+  <ItemGroup Condition="$(TargetFramework.Contains('uap10'))">
+    <PackageReference Include="Microsoft.Bcl.HashCode" Version="1.1.1" />
+  </ItemGroup>
+</Project>

@@ -1,0 +1,16 @@
+<Project>
+  <PropertyGroup>
+    <TargetFrameworks>netstandard2.0;net6.0</TargetFrameworks>
+  </PropertyGroup>
+
+  <!-- all -->
+  <ItemGroup>
+    <PackageReference Include="Flurl" Version="3.0.4" />
+    <PackageReference Include="ReactiveUI" Version="17.1.17" />
+  </ItemGroup>
+
+  <!-- netstandard2.0 -->
+  <ItemGroup Condition="$(TargetFramework) == 'netstandard2.0'">
+    <PackageReference Include="Microsoft.Bcl.HashCode" Version="1.1.1" />
+  </ItemGroup>
+</Project>

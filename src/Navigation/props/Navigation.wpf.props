@@ -1,0 +1,18 @@
+<Project>
+  <PropertyGroup Condition="'$(OS)' == 'Windows_NT'">
+    <TargetFrameworks>$(TargetFrameworks);net6.0-windows7.0</TargetFrameworks>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="$(TargetFramework.Contains('windows7.0'))">
+    <UseWPF>true</UseWPF>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="**\*.wpf.cs" />
+    <Compile Remove="**\*.wpf.cs" />
+    <Compile Condition="$(TargetFramework.Contains('windows7.0'))" Include="**\*.wpf.cs" />
+  </ItemGroup>
+
+  <ItemGroup Condition="$(TargetFramework.Contains('windows7.0'))">
+  </ItemGroup>
+</Project>
