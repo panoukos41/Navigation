@@ -1,5 +1,6 @@
-﻿using Flurl;
+using Flurl;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace P41.Navigation.Host;
 
@@ -34,14 +35,14 @@ public class NavigationParameters
     /// </summary>
     /// <param name="key">The query parameter to access.</param>
     /// <returns>The value of a query parameter or null if it does not exist.</returns>
-    public string? this[string key] => _url.QueryParams.TryGetFirst(key, out var value) ? value.ToString() : null;
+    public string? this[string key] => Query.TryGetFirst(key, out var value) ? value.ToString() : null;
 
     /// <summary>
     /// Access the path segemnts by index.
     /// </summary>
     /// <param name="index">The index of the segment to return starting by 0.</param>
     /// <returns>The requested segment or null if it does not exist.</returns>
-    public string? this[int index] => _url.PathSegments.Count > index + 1 ? _url.PathSegments[index] : null;
+    public string? this[int index] => Segments.ElementAtOrDefault(index);
 
     /// <summary>
     /// Returns a string that represents the request.
