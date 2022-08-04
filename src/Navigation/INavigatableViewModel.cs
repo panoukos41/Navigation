@@ -1,4 +1,5 @@
 ﻿using Flurl;
+using P41.Navigation.Host;
 using ReactiveUI;
 using System;
 using System.Collections.Generic;
@@ -32,9 +33,9 @@ public interface INavigatableViewModel
 /// </summary>
 public sealed class ViewModelNavigator : IDisposable
 {
-    private readonly List<Func<Url, IEnumerable<IDisposable>>> _blocks;
+    private readonly List<Func<NavigationParameters, IEnumerable<IDisposable>>> _blocks;
 
-    private readonly Subject<Url> _navigatedTo;
+    private readonly Subject<NavigationParameters> _navigatedTo;
 
     private readonly Subject<Unit> _navigatingFrom;
 
@@ -43,15 +44,15 @@ public sealed class ViewModelNavigator : IDisposable
     private int _refCount;
 
     /// <summary>
-    /// The <see cref="INavigationHost"/> associated with this Navigator
-    /// and will be used to perform navigation.
+    /// The <see cref="INavigationHost"/> associated with this Navigator,
+    /// this is set by the host itself and can be used for further navigation.
     /// </summary>
-    public INavigationHost? Host { get; private set; }
+    public INavigationHost? Host { get; internal set; }
 
     /// <summary>
     /// Gets an observable which will tick every time the Navigator is navigated to.
     /// </summary>
-    public IObservable<Url> WhenNavigatedTo => _navigatedTo;
+    public IObservable<NavigationParameters> WhenNavigatedTo => _navigatedTo;
 
     /// <summary>
     /// Gets an observable which will tick every time the Navigator is navigating from.
@@ -63,41 +64,37 @@ public sealed class ViewModelNavigator : IDisposable
     /// </summary>
     public ViewModelNavigator()
     {
-        _blocks = new List<Func<Url, IEnumerable<IDisposable>>>();
-        _navigatedTo = new Subject<Url>();
+        _blocks = new List<Func<NavigationParameters, IEnumerable<IDisposable>>>();
+        _navigatedTo = new Subject<NavigationParameters>();
         _navigatingFrom = new Subject<Unit>();
     }
 
     /// <summary>
     /// This method is called when a View is navigated to.
     /// </summary>
-    /// <param name="url"></param>
-    /// <param name="host">The host that triggered this navigation.</param>
+    /// <param name="parameters"></param>
     /// <returns>A Disposable that calls NavigatingFrom when disposed.</returns>
-    public IDisposable NavigatedTo(Url url, INavigationHost host)
+    public IDisposable NavigatedTo(NavigationParameters parameters)
     {
-        Host = host;
         if (Interlocked.Increment(ref _refCount) == 1)
         {
-            var value = new CompositeDisposable(_blocks.SelectMany(x => x(url)));
+            var value = new CompositeDisposable(_blocks.SelectMany(x => x(parameters)));
             Interlocked.Exchange(ref _navigationHandle, value).Dispose();
-            _navigatedTo.OnNext(url);
+            _navigatedTo.OnNext(parameters);
         }
 
         return Disposable.Create(delegate
         {
-            NavigatingFrom(host);
+            NavigatingFrom();
         });
     }
 
     /// <summary>
     /// This method is called when a view is navigating to another view.
     /// </summary>
-    /// <param name="host">The host that triggered this.</param>
     /// <param name="ignoreRefCount"></param>
-    public void NavigatingFrom(INavigationHost host, bool ignoreRefCount = false)
+    public void NavigatingFrom(bool ignoreRefCount = false)
     {
-        Host = host;
         if (Interlocked.Decrement(ref _refCount) == 0 || ignoreRefCount)
         {
             Interlocked.Exchange(ref _navigationHandle, Disposable.Empty).Dispose();
@@ -118,7 +115,7 @@ public sealed class ViewModelNavigator : IDisposable
     /// These will called on NavigatedTo, then disposed on NavigatingFrom.
     /// </summary>
     /// <param name="block">The block to add.</param>
-    internal void AddNavigationBlock(Func<Url, IEnumerable<IDisposable>> block)
+    internal void AddNavigationBlock(Func<NavigationParameters, IEnumerable<IDisposable>> block)
     {
         _blocks.Add(block);
     }
@@ -134,9 +131,9 @@ public static class NavigatorExtensions
     /// Add disposables to the <see cref="CompositeDisposable"/> to be notified
     /// when you are navigated away from the ViewModel.
     /// </summary>
-    public static void WhenNavigatedTo(this INavigatableViewModel item, Action<Url, CompositeDisposable> block)
+    public static void WhenNavigatedTo(this INavigatableViewModel item, Action<NavigationParameters, CompositeDisposable> block)
     {
-        Action<Url, CompositeDisposable> block2 = block;
+        Action<NavigationParameters, CompositeDisposable> block2 = block;
         if (item is null) throw new ArgumentNullException("item");
 
         item.Navigator.AddNavigationBlock(url =>
