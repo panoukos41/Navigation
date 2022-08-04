@@ -1,4 +1,4 @@
-using Flurl;
+﻿using Flurl;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -49,4 +49,10 @@ public class NavigationParameters
     /// </summary>
     /// <returns>A string that represents the request.</returns>
     public override string ToString() => _url;
+
+    /// <summary>
+    /// Wrap a <see cref="Url"/>.
+    /// </summary>
+    /// <param name="url"></param>
+    public static implicit operator NavigationParameters(Url url) => new(url);
 }
