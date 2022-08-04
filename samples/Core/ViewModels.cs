@@ -28,9 +28,9 @@ public class Page1ViewModel : ViewModel
             Count += IncreaseBy;
         });
 
-        this.WhenNavigatedTo((request, d) =>
+        this.WhenNavigatedTo((p, d) =>
         {
-            IncreaseBy = int.TryParse(request.PathSegments.LastOrDefault(), out var inc) ? inc : 10;
+            IncreaseBy = int.TryParse(p.Segments.LastOrDefault(), out var inc) ? inc : 10;
         });
     }
 }
