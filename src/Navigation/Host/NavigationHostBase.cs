@@ -119,9 +119,9 @@ public abstract class NavigationHostBase<TView, TImpliments> : INavigationHost
         CurrentView = PlatformNavigate(view);
 
         NavigatedToViewModel();
+        _navigated.OnNext(this);
 
         context.SetOutput(Unit.Default);
-        _navigated.OnNext(this);
     }
 
     private void PopExecute(InteractionContext<Unit, Unit> context)
@@ -137,9 +137,9 @@ public abstract class NavigationHostBase<TView, TImpliments> : INavigationHost
             CurrentView = PlatformGoBack();
 
             NavigatedToViewModel();
+            _navigated.OnNext(this);
 
             context.SetOutput(Unit.Default);
-            _navigated.OnNext(this);
 
             if (Stack.Count == 0) _rootPopped.OnNext(Unit.Default);
             return;
@@ -154,7 +154,10 @@ public abstract class NavigationHostBase<TView, TImpliments> : INavigationHost
     {
         if (CurrentView is IViewFor { ViewModel: INavigatableViewModel nextVm })
         {
-            nextVm.Navigator.NavigatedTo(CurrentRequest!, this);
+            var navigator = nextVm.Navigator;
+
+            navigator.Host = this;
+            navigator.NavigatedTo(new NavigationParameters(CurrentRequest!));
         }
     }
 
@@ -165,7 +168,10 @@ public abstract class NavigationHostBase<TView, TImpliments> : INavigationHost
     {
         if (CurrentView is IViewFor { ViewModel: INavigatableViewModel previusVm })
         {
-            previusVm.Navigator.NavigatingFrom(this);
+            var navigator = previusVm.Navigator;
+
+            navigator.Host = this;
+            navigator.NavigatingFrom();
         }
     }
 
