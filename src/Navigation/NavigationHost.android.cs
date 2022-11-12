@@ -1,7 +1,6 @@
 ﻿using AndroidX.Fragment.App;
 using P41.Navigation.Host;
 using System;
-using System.Threading.Tasks;
 
 namespace P41.Navigation;
 

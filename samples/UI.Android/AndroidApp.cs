@@ -26,6 +26,7 @@ public class AndroidApp : Application
             services.AddSingleton(sp =>
                 new NavigationHost()
                 .Map("page1", static () => new Page1())
+                .Map("page1/{}", static () => new Page1())
                 .Map("page2", static () => new Page2())
                 .Map("page3", static () => new Page3())
             );

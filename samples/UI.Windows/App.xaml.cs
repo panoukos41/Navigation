@@ -34,7 +34,8 @@ public partial class App : Application
         Services.Initialize(static services =>
         {
             services.AddSingleton(sp => new NavigationHost()
-                .Map("page1/{?}", static () => typeof(Page1))
+                .Map("page1", static () => typeof(Page1))
+                .Map("page1/{}", static () => typeof(Page1))
                 .Map("page2", static () => typeof(Page2))
                 .Map("page3", static () => typeof(Page3)));
 

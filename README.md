@@ -41,7 +41,7 @@ You get started by configuring the `NavigationHost` for a platform:
 services.AddSingleton(sp =>
     new NavigationHost()
     .Map("page1", static () => typeof(Page1))
-    .Map("page2", static () => typeof(Page2))
+    .Map("page2/{}", static () => new Page2()) // {} means parameter.
     .Map("page3", static () => typeof(Page3)));
 
 // At the end of Application OnLaunched
@@ -55,7 +55,7 @@ Services.Resolve<INavigationHost>().Navigate("page1/100");
 services.AddSingleton(sp =>
     new NavigationHost()
     .Map("page1", static () => new Page1())
-    .Map("page2", static () => new Page2())
+    .Map("page2/{}", static () => new Page2()) // {} means parameter.
     .Map("page3", static () => new Page3())
 );
 

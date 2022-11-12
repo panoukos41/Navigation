@@ -1,5 +1,6 @@
 ﻿using Flurl;
 using P41.Navigation.UnitTests.Util;
+using System.Runtime.InteropServices;
 
 namespace P41.Navigation.UnitTests;
 
@@ -26,6 +27,8 @@ public class NavigationHostTests
         // Navigated to home 1
         host.Navigate(requestHome);
         host.Navigate(requestHome);
+
+        //ShouldBe(requestHome, host.Views[0]);
 
         // Navigated to details 1, Navigating from home 1
         host.Navigate(requestDetails2);
@@ -62,5 +65,11 @@ public class NavigationHostTests
         host.Count.Should().Be(1);
 
         whenNavigatedCount.Should().Be(7);
+
+        void ShouldBe(Url request, TestView view)
+        {
+            host.CurrentRequest.Should().Be(request);
+            host.CurrentView.Should().Be(view);
+        }
     }
 }

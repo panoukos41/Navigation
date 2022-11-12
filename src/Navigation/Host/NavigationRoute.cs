@@ -17,9 +17,8 @@ public class NavigationRoute : IEquatable<NavigationRoute?>
     public NavigationRoute(string template)
     {
         Template = template;
-        Segments = template.Split('/');
-        ParametersCount = Segments.Count(IsParameter);
-        HasOptionalParameter = IsOptionalParameter(Segments.Last());
+        Segments = template.Trim('/').Split('/');
+        HasParameter = Segments.Last() == "{}";
     }
 
     /// <summary>
@@ -33,14 +32,9 @@ public class NavigationRoute : IEquatable<NavigationRoute?>
     public IList<string> Segments { get; }
 
     /// <summary>
-    /// How many parameters exist.
+    /// If there exists one parameter.
     /// </summary>
-    public int ParametersCount { get; }
-
-    /// <summary>
-    /// If there exists one parameter that is optional.
-    /// </summary>
-    public bool HasOptionalParameter { get; }
+    public bool HasParameter { get; }
 
     /// <summary>
     /// Match this route against a <see cref="Url"/> and see if it matches.
@@ -49,18 +43,19 @@ public class NavigationRoute : IEquatable<NavigationRoute?>
     /// <returns>True when it matches otherwise false.</returns>
     public bool Match(Url request)
     {
-        var segmentCount = HasOptionalParameter ? Segments.Count - 1 : Segments.Count;
+        var segments = Segments;
+        var requestSegments = request.PathSegments;
 
-        for (int i = 0; i < segmentCount; i++)
+        if (segments.Count != requestSegments.Count) return false;
+
+        for (int i = 0; i < segments.Count; i++)
         {
-            var segment = Segments[i];
-            var requestSegment = request.PathSegments[i];
+            var s = segments[i];
+            var r = requestSegments[i];
 
-            if (IsParameter(segment)) continue;
-
-            if (segment != requestSegment) return false;
+            if (s == "{}") return true;
+            if (s != r) return false;
         }
-
         return true;
     }
 
@@ -73,8 +68,6 @@ public class NavigationRoute : IEquatable<NavigationRoute?>
     }
 
     private static bool IsParameter(string segment) => segment.Equals("{}", StringComparison.OrdinalIgnoreCase);
-
-    private static bool IsOptionalParameter(string segment) => segment.Equals("{?}", StringComparison.OrdinalIgnoreCase);
 
     /// <inheritdoc/>
     public static implicit operator string(NavigationRoute _) => _.ToString();
