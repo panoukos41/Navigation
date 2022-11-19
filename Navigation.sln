@@ -10,14 +10,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "root", "root", "{2E863483-3
 		.editorconfig = .editorconfig
 		.gitattributes = .gitattributes
 		.gitignore = .gitignore
-		build.ps1 = build.ps1
+		ci.ps1 = ci.ps1
 		Directory.Build.props = Directory.Build.props
 		global.json = global.json
 		LICENSE.md = LICENSE.md
-		publish.ps1 = publish.ps1
 		README.md = README.md
-		restore.ps1 = restore.ps1
-		test.ps1 = test.ps1
 		version.json = version.json
 	EndProjectSection
 EndProject

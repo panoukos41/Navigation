@@ -27,17 +27,9 @@ jobs:
       - name: Setup .NET Workloads
         run: dotnet workload install android
 
-      - name: Test
-        run: |
-          $env:PATH += ";C:/Program Files/Microsoft Visual Studio/2022/Enterprise/Msbuild/Current/Bin";
-          ./restore.ps1 ./tests/Navigation.UnitTests Release
-          ./build.ps1 ./tests/Navigation.UnitTests/ Release
-          ./test.ps1 ./tests/Navigation.UnitTests/ Release
-
-      - name: Publish
-        run: |
-          $env:PATH += ";C:/Program Files/Microsoft Visual Studio/2022/Enterprise/Msbuild/Current/Bin";
-          ./publish.ps1 ./src/Navigation/
+      - name: Build, Test, Pack
+        shell: pwsh
+        run: ./ci.ps1
 
       - name: Publish to NuGet
         env:
